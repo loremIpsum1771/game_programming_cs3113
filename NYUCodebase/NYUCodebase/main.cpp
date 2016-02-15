@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 				done = true;
 			}
-
+		}
 			float ticks = (float)SDL_GetTicks() / 1000.0f;
 			float elapsed = ticks - lastFrameTicks;
 			lastFrameTicks = ticks;
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
 			SDL_GL_SwapWindow(displayWindow);
 
-		}
+
 		
 	}
 

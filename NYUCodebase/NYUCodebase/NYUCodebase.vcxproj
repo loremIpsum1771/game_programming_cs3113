@@ -74,7 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="assignment2.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
   </ItemGroup>
@@ -91,6 +91,9 @@
   <ItemGroup>
     <Image Include="..\..\..\..\assets\particle_textures\fire2.png" />
     <Image Include="cardBack_blue2.png" />
+    <Image Include="paddleBlu.png" />
+    <Image Include="paddleRed.png" />
+    <Image Include="pongbackground.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
