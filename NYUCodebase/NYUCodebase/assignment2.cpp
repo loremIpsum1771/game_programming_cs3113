@@ -6,6 +6,7 @@
 #include <SDL_image.h>
 #include <ctime>
 #include <vector>
+#include <iostream>
 #include "Matrix.h"
 #include "ShaderProgram.h"
 
@@ -17,16 +18,19 @@
 
 class Object{
 	Matrix modelMatrix, projectionMatrix, viewMatrix;
-	float posX, posY, posZ = 0.0;
+	
+	
 public:
-
-	void drawObject(ShaderProgram program){
-		float vertices[] = { -0.5, -0.5,
+	float top,bottom,innerBound, outerBound = 0.0;
+	float xDir, yDir = 0.0;
+	float posX, posY = 0.0;
+	void drawObject(ShaderProgram program, float vertices[] ){
+		/*float vertices[] = { -0.5, -0.5,
 							0.5, -0.5,
 							0.5, 0.5,
 							-0.5, -0.5,
 							0.5, 0.5,
-							-0.5, 0.5 };
+							-0.5, 0.5 };*/
 		glVertexAttribPointer(program.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
 		glEnableVertexAttribArray(program.positionAttribute);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -46,8 +50,8 @@ public:
 	void translateObj(float x, float y, float z){
 		posX = x;
 		posY = y;
-		posZ = z;
-		modelMatrix.Translate(posX, posY, posZ);
+		
+		modelMatrix.Translate(posX, posY,0.0);
 	}
 	void scaleObj(float x, float y, float z){
 		modelMatrix.Scale(x, y, z);
@@ -57,10 +61,7 @@ public:
 		modelMatrix.identity();
 	}
 
-	std::vector<float> getObjPos(){
-		std::vector<float> posVect = { posX, posY, posZ };
-		return posVect;
-	}
+	
 
 	void setObjXpos(float xPos){
 		posX = xPos;
@@ -71,6 +72,19 @@ public:
 	}
 
 };
+
+//GLboolean CheckCollision(Object &one, Object& two){
+//	// Collision x-axis?
+//	bool collisionX = (one.getObjPos())[0] + one.width >= (two.getObjPos())[0] && (two.getObjPos())[0] + two.width >= (one.getObjPos())[0];
+//	// Collision y-axis?
+//	bool collisionY = (one.getObjPos())[1] + one.height >= (two.getObjPos())[1] && (two.getObjPos())[1] + two.height >= (one.getObjPos())[1];
+//	// Collision only if on both axes
+//	return collisionX && collisionY;
+//}
+
+
+
+
 SDL_Window* displayWindow;
 
 
@@ -93,25 +107,63 @@ int main(int argc, char** argv){
 	leftPaddle.setOrthoProj();
 	leftPaddle.setObjMatrices(program);
 	leftPaddle.translateObj(-3.2, -1.5, 0.0);
-	leftPaddle.scaleObj(0.10, 0.7, 1.0);
+	//leftPaddle.scaleObj(0.10, 0.7, 1.0);
+	leftPaddle.top = leftPaddle.posY + 0.35;
+	leftPaddle.bottom = leftPaddle.posY - 0.35;
+	leftPaddle.innerBound = -2.9f;
+	float lpVerts[] = { -0.05f, -0.35f,
+						0.05f, 0.35f,
+						-0.05f, 0.35f,
+						0.05f, 0.35f,
+						-0.05f, -0.35f,
+						0.05f, -0.35f };
+
+	/*leftPaddle.width = 0.10 * 1;
+	leftPaddle.height = 0.7 * 1;*/
 
 	Object rightPaddle;
 	rightPaddle.setOrthoProj();
 	rightPaddle.setObjMatrices(program);
 	rightPaddle.translateObj(3.2, 1.5, 0.0);
-	rightPaddle.scaleObj(0.10, 0.7, 1.0);
+	//rightPaddle.scaleObj(0.10, 0.7, 1.0);
+	rightPaddle.top = rightPaddle.posY + 0.7;
+	rightPaddle.bottom = rightPaddle.posY - 0.7;
+	rightPaddle.innerBound = 3.15;
+	float rpVerts[] = { -0.05f, -0.35f,
+		0.05f, 0.35f,
+		-0.05f, 0.35f,
+		0.05f, 0.35f,
+		-0.05f, -0.35f,
+		0.05f, -0.35f };
 
 	Object ball;
 	ball.setOrthoProj();
 	ball.setObjMatrices(program);
-	ball.translateObj(0.0, 0.0, 0.0);
-	ball.scaleObj(0.10, 0.10, 0.0);
+	ball.translateObj(0.0, -2.0, 0.0);
+	//.scaleObj(0.10, 0.10, 0.0);
+	ball.top = ball.posY + 0.1;
+	ball.bottom = ball.posY - 0.1;
+	ball.innerBound = ball.posX - 0.1;
+	ball.innerBound = ball.posX + 0.1;
+	ball.xDir = 1.0f;
+	ball.yDir = 1.0f;
+	float ballVerts[] = { -0.1f, -0.1f,
+		0.1f, 0.1f,
+		-0.1f, 0.1f,
+		0.1f, 0.1f,
+		-0.1f, -0.1f,
+		0.1f, -0.1f };
 
 	float ballPosX = 0.0;
 	float ballPosY = 0.0;
 	
 	float paddleSpeed = 0.0;
+
+	float topBound = 2.0f;
+	float lowBound = -2.0f;
 	
+	float rightOuterX = 3.25f;
+	float leftOuterX = -3.25f;
 
 	SDL_Event event;
 	bool done = false;
@@ -120,6 +172,7 @@ int main(int argc, char** argv){
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 				done = true;
 			}
+		}
 
 			float ticks = (float)SDL_GetTicks() / 1000.0f;
 			float elapsed = ticks - lastFrameTicks;
@@ -128,26 +181,67 @@ int main(int argc, char** argv){
 			glClear(GL_COLOR_BUFFER_BIT);
 			
 			leftPaddle.setObjMatrices(program);
-			leftPaddle.drawObject(program);
+			leftPaddle.drawObject(program,lpVerts);
 
 			rightPaddle.setObjMatrices(program);
-			rightPaddle.drawObject(program);
+			rightPaddle.drawObject(program,rpVerts);
 
 			ball.setObjMatrices(program);
-			ball.drawObject(program);
+			ball.drawObject(program,ballVerts);
 
-			ballPosX += 0.1 *elapsed;
-			ballPosY += 0.1 * elapsed;
+			ballPosX += 0.0025 *elapsed* ball.xDir;
+			ballPosY += 0.0025 * elapsed * ball.yDir;
 			
 			ball.translateObj(ballPosX, ballPosY, 0.0);
 			
-			paddleSpeed += 0.4 * elapsed;
+			paddleSpeed += 0.0015 * elapsed;
 			
-			if ((ball.getObjPos())[0] == (rightPaddle.getObjPos())[0] && (ball.getObjPos())[1] == (rightPaddle.getObjPos())[1]){
-				float newX = (ball.getObjPos())[0] * -1;
-				ball.setObjYpos(newX);
+
+			
+			////If the ball hits the top of the screen, reverse y direction
+			if (ballPosY + 0.25 > topBound || ballPosY - 0.25 < lowBound){
+				ball.yDir *= -1;
 			}
 
+			//If the ball has passed either paddle
+			if (ball.posX > rightOuterX || ball.posX < leftOuterX){
+				ball.setObjXpos(0.0);
+				ball.setObjYpos(0.0);
+			}
+			
+
+			//if the ball is on the inner side of the paddle
+			if ((ball.posX > rightPaddle.innerBound - 0.025
+				&& (rightPaddle.bottom < ball.posY)
+				&& ball.posY < rightPaddle.top))
+			{
+				ball.xDir *= -1;
+			}
+			else if ((ball.posX < leftPaddle.innerBound + 0.025)
+				&& (leftPaddle.bottom < ball.posY)
+				&& (ball.posY < leftPaddle.top))
+			{
+				ball.xDir *= -1;
+			}
+			
+
+
+			/*if ((ball.getObjPos())[0] == (rightPaddle.getObjPos())[0] && (ball.getObjPos())[1] == (rightPaddle.getObjPos())[1]){ */
+			/*if(CheckCollision(ball,rightPaddle)){
+				float newX = (ball.getObjPos())[0] * -1;
+				float newY = (ball.getObjPos())[1] * -1;
+				ball.setObjXpos(newX);
+				ball.setObjYpos(newY);
+				std::cout << "collision detected" << std::endl;
+			}
+			if (CheckCollision(ball, leftPaddle)){
+				float newX = (ball.getObjPos())[0] * -1;
+				float newY = (ball.getObjPos())[1] * -1;
+				ball.setObjXpos(newX);
+				ball.setObjYpos(newY);
+				std::cout << "collision detected" << std::endl;
+			}*/
+			/*
 			if ((ball.getObjPos())[0] == (leftPaddle.getObjPos())[0] && (ball.getObjPos())[1] == (leftPaddle.getObjPos())[1]){
 				float newX = (ball.getObjPos())[0] * -1;
 				ball.setObjYpos(newX);
@@ -158,6 +252,20 @@ int main(int argc, char** argv){
 				ball.setObjYpos(newX);
 			}
 
+			if ((rightPaddle.getObjPos())[1] == 1.6 ){
+				rightPaddle.setObjYpos(1.6);
+			}
+
+			if ((rightPaddle.getObjPos())[1] == -1.6){
+				rightPaddle.setObjYpos(-1.6);
+			}
+			if ((leftPaddle.getObjPos())[1] == 1.6){
+				leftPaddle.setObjYpos(1.6);
+			}
+
+			if ((leftPaddle.getObjPos())[1] == -1.6){
+				leftPaddle.setObjYpos(-1.6);
+			}*/
 			
 			
 			
@@ -179,21 +287,20 @@ int main(int argc, char** argv){
 			else if (keys[SDL_SCANCODE_S]) {
 				leftPaddle.setObjMatrices(program);
 				leftPaddle.translateObj(0.0, -paddleSpeed, 0.0);
-			}
-
+			} 
 
 			//If left paddle wins
-			if ((ball.getObjPos())[0] > 3.5){
+			if (ball.posX > 3.5){
 				glClearColor(1.0, 0.0, 0.0, 0.0);
 			}
 
 			//If right paddle wins
-			if ((ball.getObjPos())[0]  < -3.5){
+			if (ball.posX  < -3.5){
 				glClearColor(0.0, 0.0, 1.0, 0.0);
 			}
 
 			
-		}
+		
 		
 		SDL_GL_SwapWindow(displayWindow);
 		
