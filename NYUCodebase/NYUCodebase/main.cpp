@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 	ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
 	GLuint texture1 = LoadTexture(RESOURCE_FOLDER"cardBack_blue2.png");
 	GLuint texture2 = LoadTexture(RESOURCE_FOLDER"cardBack_blue2.png");
-	GLuint texture3 = LoadTexture(RESOURCE_FOLDER"cardBack_blue2.png");
+ 	GLuint texture3 = LoadTexture(RESOURCE_FOLDER"cardBack_blue2.png");
 	GLuint texture4 = LoadTexture(RESOURCE_FOLDER"cardBack_blue2.png");
 	Matrix projectionMatrix;
 	Matrix modelMatrix;
