@@ -190,7 +190,7 @@ public:
 	Spaceship(float xDirect, float yDirect,
 		float xPosition, float yPosition, float speed, float rState, ShaderProgram* program, SheetSprite newSprite, bool movingLeft, bool movingRight): 
 		Entity(xDirect, yDirect, xPosition, yPosition, speed, rState, program, newSprite), movingLeft(movingLeft), movingRight(movingRight){
-		posY = 0.1;
+		posY = 0.0;
 		//translateObj(posX, posY, 0.0);
 	}
 
@@ -209,7 +209,7 @@ public:
 	virtual void Render() {
 		setOrthoProj();
 		setObjMatrices();
-		translateObj(posX, posY, 0.0);
+		translateObj(posX, 0.0, 0.0);
 		mySprite.Draw();
 	}
 	bool movingLeft;
@@ -251,7 +251,7 @@ public:
 		floatingLeft = false;
 		floatingRight = true;
 	}
-	virtual void update(float elapsed) {
+	virtual void Update(float elapsed) {
 		if(enemies[0][leftmost]->posX <= -3.2){
 			for (int i = 0; i < enemies.size(); i++) {
 				for (int j = 0; j < enemies[i].size(); j++) {
@@ -287,7 +287,12 @@ public:
 		}
 	}
 
-
+	virtual void Render() {
+		setOrthoProj();
+		setObjMatrices();
+		translateObj(posX, posY, 0.0);
+		mySprite.Draw();
+	}
 
 	bool isSolid;
 	bool floatingLeft;
@@ -443,22 +448,22 @@ int main(int argc, char** argv) {
 	ShaderProgram* program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
 
 	GLuint spriteSheetTexture = LoadTexture("sheet.png");
-	SheetSprite  mySprite(spriteSheetTexture, 112.0f / 1024.0f, 791.0f / 1024.0f, 112.0f / 1024.0f, 75.0f / 1024.0f, 0.25, program);
+	SheetSprite  mySprite(spriteSheetTexture, 112.0f / 1024.0f, 791.0f / 1024.0f, 112.0f / 1024.0f, 75.0f / 1024.0f, 0.22, program);
 
 	GLuint enemyBlack = LoadTexture("sheet.png");
-	SheetSprite  spr_enemy1(enemyBlack, 423.0f / 1024.0f, 728.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
+	SheetSprite  spr_enemy1(enemyBlack, 423.0f / 1024.0f, 728.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
 
 	GLuint enemyBlue = LoadTexture("sheet.png");
-	SheetSprite  spr_enemy2(enemyBlue, 425.0f / 1024.0f, 468.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
+	SheetSprite  spr_enemy2(enemyBlue, 425.0f / 1024.0f, 468.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
 
 	GLuint enemyGreen = LoadTexture("sheet.png");
-	SheetSprite  spr_enemy3(enemyGreen, 425.0f / 1024.0f, 552.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
+	SheetSprite  spr_enemy3(enemyGreen, 425.0f / 1024.0f, 552.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
 
 	GLuint enemyRed1 = LoadTexture("sheet.png");
-	SheetSprite  spr_enemy4(enemyRed1, 425.0f / 1024.0f, 384.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
+	SheetSprite  spr_enemy4(enemyRed1, 425.0f / 1024.0f, 384.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
 
 	GLuint enemyRed2 = LoadTexture("sheet.png");
-	SheetSprite  spr_enemy5(enemyRed2, 120.0f / 1024.0f, 520.0f / 1024.0f, 104.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
+	SheetSprite  spr_enemy5(enemyRed2, 120.0f / 1024.0f, 520.0f / 1024.0f, 104.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
 	
 	
 	
@@ -468,63 +473,89 @@ int main(int argc, char** argv) {
 	spaceship->Render();
 	//spaceship->posY = 0.0001;
 	spaceship->objSpeed = 10;
+	spaceship->translateObj(0.0, -1.6, 0.0);
+	spaceship->posY = -1.6;
 	entities.push_back(spaceship);
 	//spaceship->posY = 0.01;
-	spaceship->setObjMatrices();
-	spaceship->mySprite.Draw();
+	
 	//spaceship->Render();
 
 	//Entity(float xDirect, float yDirect, float xPosition, float yPosition, float speed, float rState, ShaderProgram* program, SheetSprite newSprite)
 
 
-	float xoffset = -5.0;
-	float yoffset = 0.0;
+	//float xoffset = -3.1;
+	//float yoffset = 0.0;
+	std::vector<std::vector<Enemy*>> enemies2(5, std::vector<Enemy*>(11));
+	Enemy* testEnemy = new Enemy(1.0f, 1.0f, 0.0, 0.0, 3.0f, 0.0f, program, spr_enemy5);
+	testEnemy->posX = -0.6;
+	testEnemy->posY = 0.9;
+	testEnemy->translateObj(-0.6, 0.9, 0.0);
+	enemies2[0][0] = testEnemy;
 
-
+	Enemy* testEnemy2 = new Enemy(1.0f, 1.0f, 0.0, 0.0, 3.0f, 0.0f, program, spr_enemy4);
+	testEnemy2->posX = -0.52;
+	testEnemy2->posY = 0.82;
+	testEnemy2->translateObj(-0.52, 0.82, 0.0);
+	enemies2[0][1] = testEnemy2;
 	
+	float xoffset = -0.6;
+	float yoffset = 0.9;
 
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_black = new Enemy(1.0f, 1.0f, 0.0, 0.0f, 3.0f, 0.0f, program, spr_enemy1);
+		//enemy_black->posX = xoffset;
+		//enemy_black->Render();
+		enemy_black->posX = xoffset;
+		enemy_black->posY = yoffset;
+		enemy_black->translateObj(xoffset, yoffset, 0.0);
+		enemies[0][i] = enemy_black;
+		xoffset += 0.08;
+	}
+	xoffset = -0.6;
+	yoffset -= 0.08;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_blue = new Enemy(1.0f, 1.0f, 0.0, 0.0, 3.0f, 0.0f, program, spr_enemy2);
+		//enemy_blue->posX = xoffset;
+		//enemy_blue->posY = yoffset;
+		//enemy_blue->Render();
+		enemy_blue->posX = xoffset;
+		enemy_blue->posY = yoffset;
+		enemy_blue->translateObj(xoffset, yoffset, 0.0);
+		enemies[1][i] = enemy_blue;
+		xoffset += 0.08;
+	}
+	xoffset = -0.6;
+	yoffset -= 0.08;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_green = new Enemy(1.0f, 1.0f, 0.0, 0.0, 3.0f, 0.0f, program, spr_enemy3);
+		enemy_green->posX = xoffset;
+		enemy_green->posY = yoffset;
+		enemy_green->translateObj(xoffset, yoffset, 0.0);
+		enemies[2][i] = enemy_green;
+		xoffset += 0.08;
+	}
+
+	xoffset = -0.6;
+	yoffset -= 0.08;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, 0.0, 0.0, 3.0f, 0.0f, program, spr_enemy4);
+		enemy_red1->posX = xoffset;
+		enemy_red1->posY = yoffset;
+		enemy_red1->translateObj(xoffset, yoffset, 0.0);
+		enemies[3][i] = enemy_red1;
+		xoffset += 0.08;
+	}
+
+	xoffset = -0.6;
+	yoffset -= 0.08;
 	
-	
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_black = new Enemy(1.0f, 1.0f, xoffset, 0.0f, 3.0f, 0.0f, program, spr_enemy1);
-		enemy_black->Render();
-		enemies[0].push_back(enemy_black);
-		xoffset += 0.3;
-	}
-	xoffset = -5.0;
-	yoffset += 0.3;
-	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_blue = new Enemy(1.0f, 1.0f, xoffset, yoffset, 3.0f, 0.0f, program, spr_enemy2);
-		enemy_blue->Render();
-		enemies[1].push_back(enemy_blue);
-		
-		xoffset += 0.3;
-	}
-	xoffset = -5.0;
-	yoffset += 0.3;
-	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_green = new Enemy(1.0f, 1.0f, xoffset, yoffset, 3.0f, 0.0f, program, spr_enemy3);
-		enemy_green->Render();
-		enemies[2].push_back(enemy_green);
-		xoffset += 0.3;
-	}
-
-	xoffset = -5.0;
-	yoffset += 0.3;
-	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, xoffset, yoffset, 3.0f, 0.0f, program, spr_enemy4);
-		enemy_red1->Render();
-		enemies[3].push_back(enemy_red1);
-		xoffset += 0.3;
-	}
-
-	xoffset = -5.0;
-	yoffset += 0.3;
-	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, xoffset, yoffset, 3.0f, 0.0f, program, spr_enemy5);
-		enemy_red2->Render();
-		enemies[4].push_back(enemy_red2);
-		xoffset += 0.3;
+		Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, 0.0, 0.0, 3.0f, 0.0f, program, spr_enemy5);
+		enemy_red2->posX = xoffset;
+		enemy_red2->posY = yoffset;
+		enemy_red2->translateObj(xoffset, yoffset, 0.0);
+		enemies[4][i] = enemy_red2;
+		xoffset += 0.08;
 	}
 
 
@@ -551,48 +582,9 @@ int main(int argc, char** argv) {
 	float size = 2.0f;
 	float spacing = 1.0f;
 
-	
-
-
-
-
-	/*Entity leftPaddle(0.1f, 0.7f, 1.0f, 1.0f, -5.1f, 0.0f, 3.0f, 0.0f,program);
-	leftPaddle.setOrthoProj();
-	leftPaddle.setObjMatrices();
-	leftPaddle.translateObj(-3.2, -1.5, 0.0);
-	leftPaddle.scaleObj(leftPaddle.width, leftPaddle.height, 1.0);
-
-
-	Entity rightPaddle(0.1f, 0.7f, 1.0f, 1.0f, 5.1f, 0.0f, 3.0f, 0.0,program);
-	rightPaddle.setOrthoProj();
-	rightPaddle.setObjMatrices();
-	rightPaddle.translateObj(3.2, 1.5, 0.0);
-	rightPaddle.scaleObj(rightPaddle.width, rightPaddle.height, 1.0);
-
-
-	Entity ball(0.1f, 0.1f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, program);
-	ball.setOrthoProj();
-	ball.setObjMatrices();
-	ball.translateObj(0.0, 0.0, 0.0);
-	ball.scaleObj(ball.width, ball.height, 1.0);
-
-	Entity topWall(7.65f, 0.25f, 1.0f, 1.0f, 0.0f, 1.95f, 0.0f, 0.0f, program);
-	topWall.setOrthoProj();
-	topWall.setObjMatrices();
-	topWall.translateObj(topWall.posX, topWall.posY, 0.0);
-	topWall.scaleObj(topWall.width, topWall.height, 1.0);
-
-
-	Entity bottomWall(7.65f, 0.25f, 1.0f, 1.0f, 0.0f, -1.95f, 0.0f, 0.0f, program);
-	bottomWall.setOrthoProj();
-	bottomWall.setObjMatrices();
-	bottomWall.translateObj(bottomWall.posX, bottomWall.posY, 0.0);
-	bottomWall.scaleObj(bottomWall.width, bottomWall.height, 1.0);
-*/
-
 
 	float paddleSpeed = 0.0;
-
+	//float xoffset = 0.0;
 
 	SDL_Event event;
 	bool done = false;
@@ -608,10 +600,51 @@ int main(int argc, char** argv) {
 		lastFrameTicks = ticks;
 
 		glClear(GL_COLOR_BUFFER_BIT);
-
-
-
+		//enemies2[0][0]->setObjMatrices();
+		//enemies2[0][0]->mySprite.Draw();
 		
+		//enemies2[0][0]->setObjMatrices();
+		//enemies2[0][0]->mySprite.Draw();
+
+		//enemies2[0][0]->posX = -1.002;
+		//enemies[0][0]->modelMatrix.Translate(-1.02, 1.0, 0.0);
+		//enemies2[0][0]->translateObj(-0.002, 0.0, 0.0);
+		
+
+		//enemies2[0][1]->setObjMatrices();
+		//enemies2[0][1]->posX = -1.0;
+		//enemies2[0][1]->translateObj(-1.0, 0.0, 0.0);
+		//enemies2[0][1]->mySprite.Draw();
+
+
+		/*enemies[0][0]->setObjMatrices();
+		enemies[0][0]->mySprite.Draw();*/
+
+		entities[0]->setObjMatrices();
+		entities[0]->mySprite.Draw();
+
+		for (int i = 0; i < enemies.size(); i++) {
+			for (int j = 0; j < enemies[0].size(); j++) {
+				enemies[i][j]->setObjMatrices();
+				enemies[i][j]->mySprite.Draw();
+
+
+				/*enemies[0][j]->translateObj(xoffset, 0.0, 0.0);
+				enemies[0][j]->posX = xoffset;
+				enemies[0][j]->setObjMatrices();
+				enemies[0][j]->mySprite.Draw();*/
+
+				//xoffset += 0.01;
+				/*enemies[2][j]->setObjMatrices();
+				enemies[2][j]->mySprite.Draw();*/
+			}
+		}
+
+		/*enemies[0][0]->setObjMatrices();
+		enemies[0][0]->mySprite.Draw();*/
+
+		/*spaceship->setObjMatrices();
+		spaceship->mySprite.Draw();*/
 		//spaceship->setObjMatrices();
 		//spaceship->setOrthoProj();
 		//spaceship.drawEntity();
@@ -696,24 +729,26 @@ int main(int argc, char** argv) {
 		//}
 
 		//glGetError();
-		
+		paddleSpeed += 0.0005 * elapsed;
 
 		const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
 		if (keys[SDL_SCANCODE_LEFT]) {
-			spaceship->movingRight = false;
+			/*spaceship->movingRight = false;
 			spaceship->movingLeft = true;
-			spaceship->Update(elapsed);
-			//spaceship->setObjMatrices();
-			//spaceship->translateObj( paddleSpeed,0.0, 0.0);
+			spaceship->Update(elapsed);*/
+			spaceship->setObjMatrices();
+			spaceship->posX = -paddleSpeed;
+			spaceship->translateObj( -paddleSpeed,0.0, 0.0);
 
 		}
 		else if (keys[SDL_SCANCODE_RIGHT]) {
-			spaceship->movingLeft = false;
+			/*spaceship->movingLeft = false;
 			spaceship->movingRight = true;
-			spaceship->Update(elapsed);
-			//spaceship->setObjMatrices();
-			//spaceship->translateObj( -paddleSpeed, 0.0, 0.0);
+			spaceship->Update(elapsed);*/
+			spaceship->setObjMatrices();
+			spaceship->posX = paddleSpeed;
+			spaceship->translateObj( paddleSpeed, 0.0, 0.0);
 		}
 
 		if (keys[SDL_SCANCODE_SPACE]) {
@@ -721,11 +756,20 @@ int main(int argc, char** argv) {
 			/*leftPaddle.setObjMatrices();
 			leftPaddle.translateObj(0.0, paddleSpeed, 0.0);*/
 		}
-
-
+		/*for (int i = 0; i < enemies.size(); i++) {
+			for (int j = 0; j < enemies[0].size(); j++) {
+				enemies[i][j]->Update(elapsed);
+			}
+		}
+		for (int i = 0; i < enemies.size(); i++) {
+			for (int j = 0; j < enemies[0].size(); j++) {
+				enemies[i][j]->Render();
+			}
+		}*/
 		
-
-		spaceship->Render();
+		
+		//entities[0]->translateObj(spaceship->posX, spaceship->posY, 0.0);
+		//spaceship->Render();
 
 		SDL_GL_SwapWindow(displayWindow);
 
