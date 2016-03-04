@@ -30,7 +30,7 @@ GLuint LoadTexture(const char *image_path) {
 class SheetSprite {
 public:
 
-	SheetSprite(unsigned int textureID, float u, float v, float width, float height, float size, ShaderProgram program)
+	SheetSprite(unsigned int textureID, float u, float v, float width, float height, float size, ShaderProgram* program)
 		:textureID(textureID), u(u), v(v), width(width), height(height), size(size), program(program) {
 		
 		
@@ -43,7 +43,7 @@ public:
 
 	void Draw() {
 		//glBindTexture(GL_TEXTURE_2D, textureID);
-		glUseProgram(program.programID);
+		glUseProgram(program->programID);
 		GLfloat texCoords[] = {
 			u, v + height,
 			u + width, v,
@@ -62,14 +62,14 @@ public:
 			0.5f * size * aspect, -0.5f * size };
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		//float vertices2[] = { -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5 };
-		glVertexAttribPointer(program.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
-		glEnableVertexAttribArray(program.positionAttribute);
+		glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
+		glEnableVertexAttribArray(program->positionAttribute);
 		//float texCoords2[] = { 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0 };
-		glVertexAttribPointer(program.texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords);
-		glEnableVertexAttribArray(program.texCoordAttribute);
+		glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords);
+		glEnableVertexAttribArray(program->texCoordAttribute);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glDisableVertexAttribArray(program.positionAttribute);
-		glDisableVertexAttribArray(program.texCoordAttribute);
+		glDisableVertexAttribArray(program->positionAttribute);
+		glDisableVertexAttribArray(program->texCoordAttribute);
 	}
 	float size;
 	unsigned int textureID;
@@ -77,7 +77,7 @@ public:
 	float v;
 	float width ;
 	float height;
-	ShaderProgram program;
+	ShaderProgram* program;
 };
 
 
@@ -86,17 +86,15 @@ class Entity {
 
 public:
 	Entity( float xDirect, float yDirect,
-		float xPosition, float yPosition, float speed, float rState, ShaderProgram program, SheetSprite newSprite) : 
-		xDir(xDirect), yDir(yDirect), posX(xPosition), posY(yPosition), objSpeed(speed), rotState(rState), program(program), mySprite(newSprite) {
-		 
+		float xPosition, float yPosition, float speed, float rState, ShaderProgram* program, SheetSprite newSprite) : 
+		xDir(xDirect), yDir(yDirect), posX(xPosition), posY(yPosition), objSpeed(speed), rotState(rState), program(program), mySprite(newSprite)
+	{	 
 		 xDir = 0.0;
 		 yDir = 0.0;
 		 posX = 0.0;
 		 posY = 0.0;
 		 objSpeed = 0.0;
-		 rotState = 0.0;
-		 
-		 
+		 rotState = 0.0;	
 	}
 	Matrix modelMatrix, projectionMatrix, viewMatrix;
 	float xDir, yDir = 0.0;
@@ -105,14 +103,18 @@ public:
 	float rotState = 0.0;
 	
 	unsigned int textureID;
-	ShaderProgram program;
+	ShaderProgram* program;
 	//GLuint spriteSheetTexture = LoadTexture("sheet.png");
 	SheetSprite mySprite;
 	
 	
 	
-	void Update(float elapsed) {	
+	virtual void Update(float elapsed) {	
 		// move stuff and check for collisions
+		//posX += elapsed;
+		//posY += elapsed;
+
+
 	}
 	void Render() {
 		// for all game elements
@@ -148,10 +150,10 @@ public:
 		projectionMatrix.setOrthoProjection(-3.55, 3.55, -2.0f, 2.0f, -1.0f, 1.0f);
 	}
 	void setObjMatrices() {
-		glUseProgram(program.programID);
-		program.setModelMatrix(modelMatrix);
-		program.setProjectionMatrix(projectionMatrix);
-		program.setViewMatrix(viewMatrix);
+		glUseProgram(program->programID);
+		program->setModelMatrix(modelMatrix);
+		program->setProjectionMatrix(projectionMatrix);
+		program->setViewMatrix(viewMatrix);
 
 	}
 
@@ -183,23 +185,117 @@ public:
 
 };
 
+class Spaceship : public Entity {
+public:
+	Spaceship(float xDirect, float yDirect,
+		float xPosition, float yPosition, float speed, float rState, ShaderProgram* program, SheetSprite newSprite, bool movingLeft, bool movingRight): 
+		Entity(xDirect, yDirect, xPosition, yPosition, speed, rState, program, newSprite), movingLeft(movingLeft), movingRight(movingRight){
+		posY = 0.1;
+		//translateObj(posX, posY, 0.0);
+	}
+
+	virtual void Update(float elapsed) {
+		// move stuff and check for collisions
+		
+		if (movingLeft) {
+			posX -= elapsed* 0.001;
+		}
+
+		else if (movingRight) {
+			posX += elapsed * 0.001;
+		}
+	}
+
+	virtual void Render() {
+		setOrthoProj();
+		setObjMatrices();
+		translateObj(posX, posY, 0.0);
+		mySprite.Draw();
+	}
+	bool movingLeft;
+	bool movingRight;
+};
 
 
-std::vector<Entity> entities;
+std::vector<Entity*> entities;
+
+class Enemy;
+
+std::vector<std::vector<Enemy*>> enemies(5, std::vector<Enemy*>(11));
 
 class Bullet : public Entity {
+
 public:
-
-	Bullet(ShaderProgram program, SheetSprite newSprite, float angle = 0.0, float timeAlive = 0.0,  float xDirect = 0.0, float yDirect = 0.0,
-		float xPosition = 0.0, float yPosition = 0.0, float speed = 0.0, float rState = 0.0) : Entity(xDirect,yDirect,xPosition,yPosition,speed,rState,program, newSprite), 
-		angle(angle), timeAlive(timeAlive) {}
-
+	//Entity(float xDirect, float yDirect, float xPosition, float yPosition, float speed, float rState, ShaderProgram* program, SheetSprite newSprite)
+	Bullet(float xDirect, float yDirect, float xPosition, float yPosition, float speed, float rState, ShaderProgram* program, SheetSprite newSprite, float angle, float timeAlive)
+	 : Entity(xDirect,yDirect,xPosition,yPosition,speed,rState,program, newSprite), angle(angle), timeAlive(timeAlive) {
+		angle = 0.0;
+		timeAlive = 0.0;
+	}
+	
 	float angle;
 	float timeAlive;
 
 };
 
 class Enemy : public Entity {
+public:
+	Enemy(float xDirect, float yDirect,
+		float xPosition, float yPosition, float speed, float rState, ShaderProgram* program, SheetSprite newSprite) :
+		Entity(xDirect, yDirect, xPosition, yPosition, speed, rState, program, newSprite) {
+		leftmost = 0;
+		rightmost = 10;
+		vectPosX = 0;
+		vectPosY = 0;
+		isSolid = true;
+		floatingLeft = false;
+		floatingRight = true;
+	}
+	virtual void update(float elapsed) {
+		if(enemies[0][leftmost]->posX <= -3.2){
+			for (int i = 0; i < enemies.size(); i++) {
+				for (int j = 0; j < enemies[i].size(); j++) {
+					enemies[i][j]->posY -= 0.5; //move each row of enemies down to the next level
+				}
+			}
+			floatingRight = true;
+			floatingLeft = false;
+		}
+		else if (enemies[0][rightmost]->posX >= 3.2) {
+			for (int i = 0; i < enemies.size(); i++) {
+				for (int j = 0; j < enemies[i].size(); j++) {
+					enemies[i][j]->posY -= 0.5; //move each row of enemies down to the next level
+				}
+			}
+			floatingRight = false;
+			floatingLeft = true;
+		}
+
+		if (floatingRight) {
+			for (int i = 0; i < enemies.size(); i++) {
+				for (int j = 0; j < enemies[i].size(); j++) {
+					enemies[i][j]->posX += 0.12; //shift enemies to the right by a constant factor
+				}
+			}
+		}
+		else if (floatingLeft) {
+			for (int i = 0; i < enemies.size(); i++) {
+				for (int j = 0; j < enemies[i].size(); j++) {
+					enemies[i][j]->posX -= 0.12; //shift enemies to the left by a constant factor
+				}
+			}
+		}
+	}
+
+
+
+	bool isSolid;
+	bool floatingLeft;
+	bool floatingRight;
+	int leftmost;
+	int rightmost;
+	int vectPosX;
+	int vectPosY;
 
 };
 
@@ -241,13 +337,13 @@ void drawText(ShaderProgram *program, int fontTexture, std::string text, float s
 
 void UpdateGameLevel(float elapsed) {
 	for (int i = 0; i < entities.size(); i++) {
-		entities[i].Update(elapsed);
+		entities[i]->Update(elapsed);
 	}
 }
 
 void RenderGameLevel() {
 	for (int i = 0; i < entities.size(); i++) {
-		entities[i].Render();
+		entities[i]->Render();
 	}
 }
 
@@ -292,27 +388,42 @@ void Render(ShaderProgram *program, int fontTexture, std::string text, float siz
 }
 
 
-std::vector<Bullet> bullets;
-void shootBullet(ShaderProgram program, SheetSprite b_sprite) {
-	//Bullet(ShaderProgram program, float wid, float hght, float xDirect, float yDirect, float xPosition, float yPosition, float speed, float rState, float angle, float timeAlive)
-	Bullet newBullet(program,b_sprite);
-	newBullet.posX = -1.2;
-	newBullet.posY = 0.0;
-	newBullet.angle = (float)(45 - (rand() % 90));
-	newBullet.objSpeed = 2.0;
-	bullets.push_back(newBullet);
-}
 
-bool shouldRemoveBullet(Bullet bullet) {
-	if (bullet.timeAlive > 0.4) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
+//void shootBullet(ShaderProgram* program, SheetSprite b_sprite) {
+//	//Bullet(ShaderProgram program, float wid, float hght, float xDirect, float yDirect, float xPosition, float yPosition, float speed, float rState, float angle, float timeAlive)
+//	Bullet newBullet(program,b_sprite);
+//	newBullet.posX = -1.2;
+//	newBullet.posY = 0.0;
+//	newBullet.angle = (float)(45 - (rand() % 90));
+//	newBullet.objSpeed = 2.0;
+//	bullets.push_back(newBullet);
+//}
+//
+//bool shouldRemoveBullet(Bullet bullet) {
+//	if (bullet.timeAlive > 0.4) {
+//		return true;
+//	}
+//	else {
+//		return false;
+//	}
+//}
 
-
+//#define MAX_BULLETS 30
+//std::vector<Bullet> bullets(MAX_BULLETS);
+//int bulletIndex = 0;
+////Bullet bullets[MAX_BULLETS];
+//
+//void shootBullet(float elapsed) {
+//	bullets[bulletIndex].posX = -1.2;
+//	bullets[bulletIndex].posY = 0.0;
+//	bulletIndex++;
+//	if (bulletIndex > MAX_BULLETS - 1) {
+//		bulletIndex = 0;
+//	}
+//	for (int i = 0; i < MAX_BULLETS; i++) {
+//		bullets[i].Update(elapsed);
+//	}
+//}
 
 SDL_Window* displayWindow;
 
@@ -329,29 +440,109 @@ int main(int argc, char** argv) {
 	glewInit();
 #endif
 	glViewport(0, 0, 1280, 690);
-	ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
+	ShaderProgram* program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
 
 	GLuint spriteSheetTexture = LoadTexture("sheet.png");
-	
-	
-	
-	SheetSprite  mySprite(spriteSheetTexture, 112.0f / 1024.0f, 791.0f / 1024.0f, 112.0f / 1024.0f, 75.0f / 1024.0f, 0.3, program);
-	Entity spaceship(  1.0f, 1.0f, -5.1f, 0.0f, 3.0f, 0.0f, program,mySprite);
-	spaceship.objSpeed = 10;
+	SheetSprite  mySprite(spriteSheetTexture, 112.0f / 1024.0f, 791.0f / 1024.0f, 112.0f / 1024.0f, 75.0f / 1024.0f, 0.25, program);
 
+	GLuint enemyBlack = LoadTexture("sheet.png");
+	SheetSprite  spr_enemy1(enemyBlack, 423.0f / 1024.0f, 728.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
+
+	GLuint enemyBlue = LoadTexture("sheet.png");
+	SheetSprite  spr_enemy2(enemyBlue, 425.0f / 1024.0f, 468.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
+
+	GLuint enemyGreen = LoadTexture("sheet.png");
+	SheetSprite  spr_enemy3(enemyGreen, 425.0f / 1024.0f, 552.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
+
+	GLuint enemyRed1 = LoadTexture("sheet.png");
+	SheetSprite  spr_enemy4(enemyRed1, 425.0f / 1024.0f, 384.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
+
+	GLuint enemyRed2 = LoadTexture("sheet.png");
+	SheetSprite  spr_enemy5(enemyRed2, 120.0f / 1024.0f, 520.0f / 1024.0f, 104.0f / 1024.0f, 84.0f / 1024.0f, 1, program);
 	
+	
+	
+
+
+	Spaceship* spaceship = new Spaceship( 1.0f, 1.0f, -5.1f, 0.0f, 3.0f, 0.0f, program,mySprite, false, false);
+	spaceship->Render();
+	//spaceship->posY = 0.0001;
+	spaceship->objSpeed = 10;
 	entities.push_back(spaceship);
+	//spaceship->posY = 0.01;
+	spaceship->setObjMatrices();
+	spaceship->mySprite.Draw();
+	//spaceship->Render();
+
+	//Entity(float xDirect, float yDirect, float xPosition, float yPosition, float speed, float rState, ShaderProgram* program, SheetSprite newSprite)
 
 
-	spaceship.setOrthoProj();
+	float xoffset = -5.0;
+	float yoffset = 0.0;
+
+
+	
+
+	
+	
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_black = new Enemy(1.0f, 1.0f, xoffset, 0.0f, 3.0f, 0.0f, program, spr_enemy1);
+		enemy_black->Render();
+		enemies[0].push_back(enemy_black);
+		xoffset += 0.3;
+	}
+	xoffset = -5.0;
+	yoffset += 0.3;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_blue = new Enemy(1.0f, 1.0f, xoffset, yoffset, 3.0f, 0.0f, program, spr_enemy2);
+		enemy_blue->Render();
+		enemies[1].push_back(enemy_blue);
+		
+		xoffset += 0.3;
+	}
+	xoffset = -5.0;
+	yoffset += 0.3;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_green = new Enemy(1.0f, 1.0f, xoffset, yoffset, 3.0f, 0.0f, program, spr_enemy3);
+		enemy_green->Render();
+		enemies[2].push_back(enemy_green);
+		xoffset += 0.3;
+	}
+
+	xoffset = -5.0;
+	yoffset += 0.3;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, xoffset, yoffset, 3.0f, 0.0f, program, spr_enemy4);
+		enemy_red1->Render();
+		enemies[3].push_back(enemy_red1);
+		xoffset += 0.3;
+	}
+
+	xoffset = -5.0;
+	yoffset += 0.3;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, xoffset, yoffset, 3.0f, 0.0f, program, spr_enemy5);
+		enemy_red2->Render();
+		enemies[4].push_back(enemy_red2);
+		xoffset += 0.3;
+	}
+
+
+
+	/*for (int i = 0; i < MAX_BULLETS; i++) {
+		bullets[i].posX = -2000.0f;
+	}*/
+
+	//should prob go in the render method
+	/*spaceship.setOrthoProj();
 	spaceship.setObjMatrices();
-	spaceship.translateObj(-3.2, -1.5, 0.0);
-	spaceship.scaleObj(spaceship.mySprite.width, spaceship.mySprite.height, 1.0);
+	spaceship.translateObj(-3.2, -1.5, 0.0);*/
+	//spaceship.scaleObj(spaceship.mySprite.width, spaceship.mySprite.height, 1.0);
 
-	glUseProgram(program.programID);
+	glUseProgram(program->programID);
 
 
-	////Set initial Game State
+	//Set initial Game State
 	//state = STATE_MAIN_MENU;
 
 
@@ -420,10 +611,13 @@ int main(int argc, char** argv) {
 
 
 
-
-		spaceship.setObjMatrices();
+		
+		//spaceship->setObjMatrices();
+		//spaceship->setOrthoProj();
 		//spaceship.drawEntity();
-		mySprite.Draw();
+		
+		//spaceship->mySprite.Draw();
+
 
 		/*leftPaddle.setObjMatrices();
 		leftPaddle.drawEntity();
@@ -487,7 +681,7 @@ int main(int argc, char** argv) {
 		//}
 		//else {
 		//	ball.xDir = -ball.xDir;
-		//	ball.yDir = -ball.yDir;
+		//	ball.yDir = -ball.y		Dir;
 		//}
 		//if ((
 		//	(rightPaddleBottom < ballTop) ||
@@ -501,32 +695,37 @@ int main(int argc, char** argv) {
 		//	ball.yDir = -ball.yDir;
 		//}
 
-		glGetError();
-
+		//glGetError();
+		
 
 		const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
-		if (keys[SDL_SCANCODE_UP]) {
-			/*rightPaddle.setObjMatrices();
-			rightPaddle.translateObj(0.0, paddleSpeed, 0.0);*/
+		if (keys[SDL_SCANCODE_LEFT]) {
+			spaceship->movingRight = false;
+			spaceship->movingLeft = true;
+			spaceship->Update(elapsed);
+			//spaceship->setObjMatrices();
+			//spaceship->translateObj( paddleSpeed,0.0, 0.0);
+
 		}
-		else if (keys[SDL_SCANCODE_DOWN]) {
-			/*rightPaddle.setObjMatrices();
-			rightPaddle.translateObj(0.0, -paddleSpeed, 0.0);*/
+		else if (keys[SDL_SCANCODE_RIGHT]) {
+			spaceship->movingLeft = false;
+			spaceship->movingRight = true;
+			spaceship->Update(elapsed);
+			//spaceship->setObjMatrices();
+			//spaceship->translateObj( -paddleSpeed, 0.0, 0.0);
 		}
 
-		if (keys[SDL_SCANCODE_W]) {
+		if (keys[SDL_SCANCODE_SPACE]) {
+			//shootBullet(elapsed);
 			/*leftPaddle.setObjMatrices();
 			leftPaddle.translateObj(0.0, paddleSpeed, 0.0);*/
 		}
-		else if (keys[SDL_SCANCODE_S]) {
-			/*leftPaddle.setObjMatrices();
-			leftPaddle.translateObj(0.0, -paddleSpeed, 0.0);*/
-		}
 
 
+		
 
-
+		spaceship->Render();
 
 		SDL_GL_SwapWindow(displayWindow);
 
