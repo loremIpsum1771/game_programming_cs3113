@@ -51,7 +51,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\SDL2_mixer\lib\x86;C:\SDL2\lib\x86;C:\SDL2_image\lib\x86;C:\glew\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2_mixer.lib;glew32.lib;SDL2main.lib;SDL2_image.lib;OpenGL32.lib</AdditionalDependencies>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -74,7 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="assignment3.cpp" />
+    <ClCompile Include="assignment2.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
   </ItemGroup>
@@ -96,6 +96,9 @@
     <Image Include="paddleRed.png" />
     <Image Include="pongbackground.png" />
     <Image Include="sheet.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="hyruletemple.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

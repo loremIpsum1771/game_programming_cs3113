@@ -6,6 +6,7 @@
 #include <SDL_image.h>
 #include <ctime>
 #include <vector>
+#include <SDL_mixer.h>
 #include "Matrix.h"
 #include "ShaderProgram.h"
 
@@ -90,6 +91,19 @@ int main(int argc, char** argv){
 	SDL_GL_MakeCurrent(displayWindow, context);
 
 	glClearColor(1.0, 0.0, 2.0, 0.0);
+
+	int Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize);
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+	
+	Mix_Music *music;
+	music = Mix_LoadMUS("hyruletemple.mp3");
+	Mix_PlayMusic(music, -1);
+
+	//Mix_FreeChunk(someSound);
+	//Mix_FreeMusic(music);
+	//SDL_Quit();
+
+
 #ifdef _WINDOWS
 	glewInit();
 #endif
