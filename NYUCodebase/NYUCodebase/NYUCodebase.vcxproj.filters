@@ -21,7 +21,7 @@
     <ClCompile Include="ShaderProgram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="assignment2.cpp">
+    <ClCompile Include="assignment3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
