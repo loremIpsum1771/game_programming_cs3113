@@ -165,12 +165,6 @@ public:
 
 };
 
-
-
-
-
-
-
 class Bullet : public Entity {
 
 public:
@@ -178,8 +172,6 @@ public:
 	Bullet(float xDirect, float yDirect, float rState, float width, float height, float speed,
 		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite, float angle, float timeAlive)
 		: Entity(xDirect, yDirect, rState, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite), angle(angle), timeAlive(timeAlive) {
-		//angle = 0.0;
-		//timeAlive = 0.0;
 	}
 
 	float angle;
@@ -201,7 +193,10 @@ Enemy::Enemy(float xDirect, float yDirect, float rState, float width, float heig
 std::vector<Enemy*> entities;
 
 
-void drawText(ShaderProgram *program, int fontTexture, std::string text, float size, float spacing) {
+void drawText(ShaderProgram *program, int fontTexture, std::string text, float size, float spacing, Matrix &modelM) {
+	program->setModelMatrix(modelM);
+	modelM.identity();
+	modelM.Translate(-2.9, 0.0, 0.0);
 	float texture_size = 1.0 / 16.0f;
 	std::vector<float> vertexData;
 	std::vector<float> texCoordData;
@@ -236,12 +231,13 @@ void drawText(ShaderProgram *program, int fontTexture, std::string text, float s
 	glDisableVertexAttribArray(program->texCoordAttribute);
 }
 
+
+
 std::vector<Bullet*> bullets;
 
 void shootBullet(ShaderProgram* program, SheetSprite b_sprite, Spaceship* aShip, Matrix &modelM) {
 	//Bullet(float xDirect, float yDirect, float rState, float width, float height, float speed, float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite, float angle, float timeAlive)
 	Bullet* newBullet = new Bullet(1.0, 1.0, 0.0, 0.5, 0.5, 4.0, aShip->x, aShip->y, modelM, program, b_sprite, 0.0, 0.0);
-
 	bullets.push_back(newBullet);
 }
 
@@ -280,10 +276,64 @@ bool checkCollision(Enemy* anEnemy, Bullet* aBullet) {
 		return true;
 	}
 }
+void resetGame(ShaderProgram* program, std::vector<SheetSprite> spriteVect, Matrix &modelM) {
+	float xoffset = -3.2;
+	float yoffset = 1.85;
+
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_black = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[0]);
+
+		//enemyMatrix.enemyVect[0][i] = enemy_black;
+		entities.push_back(enemy_black);
+		xoffset += 0.3;
+	}
+	xoffset = -3.2;
+	yoffset -= 0.2;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_blue = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[1]);
+		//enemy_blue->posX = xoffset;
+		//enemy_blue->posY = yoffset;
+		//enemy_blue->Render();
+
+		//enemyMatrix.enemyVect[1][i] = enemy_blue;
+		entities.push_back(enemy_blue);
+
+		xoffset += 0.3;
+	}
+	xoffset = -3.2;
+	yoffset -= 0.2;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_green = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[2]);
+
+		//enemyMatrix.enemyVect[2][i] = enemy_green;
+		entities.push_back(enemy_green);
+		xoffset += 0.3;
+	}
+
+	xoffset = -3.2;
+	yoffset -= 0.2;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[3]);
+
+		//enemyMatrix.enemyVect[3][i] = enemy_red1;
+		entities.push_back(enemy_red1);
+		xoffset += 0.3;
+	}
+
+	xoffset = -3.2;
+	yoffset -= 0.2;
+
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[4]);
+
+		entities.push_back(enemy_red2);
+		//enemyMatrix.enemyVect[4][i] = enemy_red2;
+		xoffset += 0.3;
+	}
+}
 
 
-
-void UpdateGameLevel(ShaderProgram* program,  float &elapsed,  Spaceship* spaceship, std::vector<Enemy*>& entities, Matrix &modelM, std::string &text) {
+void UpdateGameLevel(ShaderProgram* program,  float &elapsed,  Spaceship* spaceship, Matrix &modelM, std::string &text) {
 	
 	float minX = -3.50f;
 	float maxX = 3.50f;
@@ -299,6 +349,7 @@ void UpdateGameLevel(ShaderProgram* program,  float &elapsed,  Spaceship* spaces
 					}
 				}
 				for (int j = 0; j < entities.size(); j++) {
+
 					if (entities[j] != nullptr) {
 						entities[j]->y -= 0.02;
 					}
@@ -349,7 +400,7 @@ void UpdateGameLevel(ShaderProgram* program,  float &elapsed,  Spaceship* spaces
 
 }
 
-void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text,  Spaceship* spaceship, std::vector<Enemy*> entities) {
+void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text,  Spaceship* spaceship) {
 	spaceship->drawSprite();
 
 
@@ -367,12 +418,13 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 	}
 }
 
-enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL };
+enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_PLAYER_WINS };
 int state;
 
 
-void Update(ShaderProgram* program, float &elapsed,  Spaceship* spaceship, std::vector<Enemy*>& entities, Matrix &modelM, std::string &text) {
+void Update(ShaderProgram* program, float &elapsed,  Spaceship* spaceship,  Matrix &modelM, std::string &text, std::vector<SheetSprite> spriteVect) {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
+	int numNull = 0;
 	switch (state) {
 	case STATE_MAIN_MENU:
 
@@ -386,33 +438,56 @@ void Update(ShaderProgram* program, float &elapsed,  Spaceship* spaceship, std::
 
 	case STATE_GAME_LEVEL:
 		//UpdateGameLevel(ShaderProgram* program, float &elapsed, Spaceship* spaceship, std::vector<Enemy*>& entities, Matrix &modelM, std::string &text) {
-		UpdateGameLevel(program, elapsed,  spaceship, entities, modelM, text);
+		UpdateGameLevel(program, elapsed,  spaceship,  modelM, text);
+		
+		for (Enemy* eachEnemy: entities) {
+			if( eachEnemy == nullptr){
+				numNull++;
+			}
+
+		}
+		if (numNull == entities.size()) {
+			state = STATE_PLAYER_WINS;
+		}
+		break;
+	case STATE_PLAYER_WINS:
+		modelM.identity();
+		if (keys[SDL_SCANCODE_R]) {
+			state = STATE_GAME_LEVEL;
+			resetGame(program,spriteVect,modelM);
+		}
 		break;
 	}
 
 
 }
 
-void Render(ShaderProgram* program, Matrix &modelM,  std::string &text,  Spaceship* spaceship, std::vector<Enemy*> entities, int fontTexture, float size, float spacing) {
-	text = "Space Invaders\nPress space to play";
+void Render(ShaderProgram* program, Matrix &modelM,  std::string &text,  Spaceship* spaceship, int fontTexture, float size, float spacing) {
+	
 	glClear(GL_COLOR_BUFFER_BIT);
 	switch (state) {
 	case STATE_MAIN_MENU:
 		//RenderMainMenu();
-		std::cout << "Main Menu" << std::endl;
-		drawText(program, fontTexture, text, size, spacing);
+		text = "Space Invaders Press 'S' to play";
+		//std::cout << "Main Menu" << std::endl;
+		//modelM.identity();
+		drawText(program, fontTexture, text, size, spacing,modelM);
 		break;
 
 	case STATE_GAME_LEVEL:
 		
-		RenderGameLevel(program, modelM, text, spaceship, entities);
+		RenderGameLevel(program, modelM, text, spaceship);
+		break;
 
+	case STATE_PLAYER_WINS:
+		text = "You've won! Press 'R' to continue!";
+		modelM.Translate(-2.5,0.0,0.0);
+		drawText(program, fontTexture, text, size, spacing, modelM);
 		break;
 	}
+	
 
 }
-
-
 
 
 int main(int argc, char *argv[])
@@ -459,6 +534,9 @@ int main(int argc, char *argv[])
 
 	Spaceship* spaceship = new Spaceship(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 2.0f, 0.0f, -1.67f, modelMatrix, program, mySprite, false, false);
 
+	std::vector<SheetSprite> spriteVect = {spr_enemy1,spr_enemy2, spr_enemy3, spr_enemy4, spr_enemy5 };
+	
+
 	float xoffset = -3.2;
 	float yoffset = 1.85;
 
@@ -471,47 +549,47 @@ int main(int argc, char *argv[])
 	}
 	xoffset = -3.2;
 	yoffset -= 0.2;
-	//for (int i = 0; i < 11; i++) {
-	//	Enemy* enemy_blue = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy2);
-	//	//enemy_blue->posX = xoffset;
-	//	//enemy_blue->posY = yoffset;
-	//	//enemy_blue->Render();
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_blue = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy2);
+		//enemy_blue->posX = xoffset;
+		//enemy_blue->posY = yoffset;
+		//enemy_blue->Render();
 
-	//	//enemyMatrix.enemyVect[1][i] = enemy_blue;
-	//	entities.push_back(enemy_blue);
+		//enemyMatrix.enemyVect[1][i] = enemy_blue;
+		entities.push_back(enemy_blue);
 
-	//	xoffset += 0.3;
-	//}
-	//xoffset = -3.2;
-	//yoffset -= 0.2;
-	//for (int i = 0; i < 11; i++) {
-	//	Enemy* enemy_green = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy3);
+		xoffset += 0.3;
+	}
+	xoffset = -3.2;
+	yoffset -= 0.2;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_green = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy3);
 
-	//	//enemyMatrix.enemyVect[2][i] = enemy_green;
-	//	entities.push_back(enemy_green);
-	//	xoffset += 0.3;
-	//}
+		//enemyMatrix.enemyVect[2][i] = enemy_green;
+		entities.push_back(enemy_green);
+		xoffset += 0.3;
+	}
 
-	//xoffset = -3.2;
-	//yoffset -= 0.2;
-	//for (int i = 0; i < 11; i++) {
-	//	Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy4);
+	xoffset = -3.2;
+	yoffset -= 0.2;
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy4);
 
-	//	//enemyMatrix.enemyVect[3][i] = enemy_red1;
-	//	entities.push_back(enemy_red1);
-	//	xoffset += 0.3;
-	//}
+		//enemyMatrix.enemyVect[3][i] = enemy_red1;
+		entities.push_back(enemy_red1);
+		xoffset += 0.3;
+	}
 
-	//xoffset = -3.2;
-	//yoffset -= 0.2;
+	xoffset = -3.2;
+	yoffset -= 0.2;
 
-	//for (int i = 0; i < 11; i++) {
-	//	Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy5);
+	for (int i = 0; i < 11; i++) {
+		Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy5);
 
-	//	entities.push_back(enemy_red2);
-	//	//enemyMatrix.enemyVect[4][i] = enemy_red2;
-	//	xoffset += 0.3;
-	//}
+		entities.push_back(enemy_red2);
+		//enemyMatrix.enemyVect[4][i] = enemy_red2;
+		xoffset += 0.3;
+	}
 	float angle = 0;
 
 	program->setProjectionMatrix(projectionMatrix);
@@ -526,7 +604,7 @@ int main(int argc, char *argv[])
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 				done = true;
 			}
-			if (keys[SDL_SCANCODE_SPACE]) {
+			if (keys[SDL_SCANCODE_SPACE] && state == STATE_GAME_LEVEL) {
 				shootBullet(program, spr_bullet, spaceship, modelMatrix);
 			}
 		}
@@ -552,8 +630,8 @@ int main(int argc, char *argv[])
 		}
 		
 		
-		Update(program, elapsed,  spaceship, entities, modelMatrix, text);
-		Render(program, modelMatrix, text, spaceship, entities, fontTexture, 2.3f, 0.05f);
+		Update(program, elapsed,  spaceship,  modelMatrix, text, spriteVect);
+		Render(program, modelMatrix, text, spaceship,  fontTexture, 0.15f, 0.009f);
 
 
 
