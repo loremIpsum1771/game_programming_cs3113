@@ -236,8 +236,7 @@ void drawText(ShaderProgram *program, int fontTexture, std::string text, float s
 std::vector<Bullet*> bullets;
 
 void shootBullet(ShaderProgram* program, SheetSprite b_sprite, Spaceship* aShip, Matrix &modelM) {
-	//Bullet(float xDirect, float yDirect, float rState, float width, float height, float speed, float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite, float angle, float timeAlive)
-	Bullet* newBullet = new Bullet(1.0, 1.0, 0.0, 0.5, 0.5, 4.0, aShip->x, aShip->y, modelM, program, b_sprite, 0.0, 0.0);
+	Bullet* newBullet = new Bullet(1.0, 1.0, 0.0, 0.1, 0.1, 4.0, aShip->x, aShip->y, modelM, program, b_sprite, 0.0, 0.0);
 	bullets.push_back(newBullet);
 }
 
@@ -281,7 +280,7 @@ void resetGame(ShaderProgram* program, std::vector<SheetSprite> spriteVect, Matr
 	float yoffset = 1.85;
 
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_black = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[0]);
+		Enemy* enemy_black = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[0]);
 
 		//enemyMatrix.enemyVect[0][i] = enemy_black;
 		entities.push_back(enemy_black);
@@ -290,7 +289,7 @@ void resetGame(ShaderProgram* program, std::vector<SheetSprite> spriteVect, Matr
 	xoffset = -3.2;
 	yoffset -= 0.2;
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_blue = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[1]);
+		Enemy* enemy_blue = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[1]);
 		//enemy_blue->posX = xoffset;
 		//enemy_blue->posY = yoffset;
 		//enemy_blue->Render();
@@ -303,7 +302,7 @@ void resetGame(ShaderProgram* program, std::vector<SheetSprite> spriteVect, Matr
 	xoffset = -3.2;
 	yoffset -= 0.2;
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_green = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[2]);
+		Enemy* enemy_green = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[2]);
 
 		//enemyMatrix.enemyVect[2][i] = enemy_green;
 		entities.push_back(enemy_green);
@@ -313,7 +312,7 @@ void resetGame(ShaderProgram* program, std::vector<SheetSprite> spriteVect, Matr
 	xoffset = -3.2;
 	yoffset -= 0.2;
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[3]);
+		Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[3]);
 
 		//enemyMatrix.enemyVect[3][i] = enemy_red1;
 		entities.push_back(enemy_red1);
@@ -324,7 +323,7 @@ void resetGame(ShaderProgram* program, std::vector<SheetSprite> spriteVect, Matr
 	yoffset -= 0.2;
 
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[4]);
+		Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelM, program, spriteVect[4]);
 
 		entities.push_back(enemy_red2);
 		//enemyMatrix.enemyVect[4][i] = enemy_red2;
@@ -388,10 +387,11 @@ void UpdateGameLevel(ShaderProgram* program,  float &elapsed,  Spaceship* spaces
 					std::cout << " hit enemy y position: " << entities[j]->y << std::endl;
 					std::cout << "bullets x position: " << bullets[i]->x << std::endl;
 					std::cout << " hit enemy x position: " << entities[j]->x << std::endl;
-					delete entities[j];
-					entities[j] = nullptr;
 					delete bullets[i];
 					bullets[i] = nullptr;
+					delete entities[j];
+					entities[j] = nullptr;
+					
 				}
 			}
 		}
@@ -520,17 +520,17 @@ int main(int argc, char *argv[])
 
 	SheetSprite  mySprite(spritesheet, 112.0f / 1024.0f, 791.0f / 1024.0f, 112.0f / 1024.0f, 75.0f / 1024.0f, 0.22, program);
 
-	SheetSprite  spr_enemy1(spritesheet, 423.0f / 1024.0f, 728.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
+	SheetSprite  spr_enemy1(spritesheet, 423.0f / 1024.0f, 728.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1.0, program);
 
-	SheetSprite  spr_enemy2(spritesheet, 425.0f / 1024.0f, 468.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
+	SheetSprite  spr_enemy2(spritesheet, 425.0f / 1024.0f, 468.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1.0, program);
 
-	SheetSprite  spr_enemy3(spritesheet, 425.0f / 1024.0f, 552.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
+	SheetSprite  spr_enemy3(spritesheet, 425.0f / 1024.0f, 552.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1.0, program);
 
-	SheetSprite  spr_enemy4(spritesheet, 425.0f / 1024.0f, 384.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
+	SheetSprite  spr_enemy4(spritesheet, 425.0f / 1024.0f, 384.0f / 1024.0f, 93.0f / 1024.0f, 84.0f / 1024.0f, 1.0, program);
 
-	SheetSprite  spr_enemy5(spritesheet, 120.0f / 1024.0f, 520.0f / 1024.0f, 104.0f / 1024.0f, 84.0f / 1024.0f, 0.06, program);
+	SheetSprite  spr_enemy5(spritesheet, 120.0f / 1024.0f, 520.0f / 1024.0f, 104.0f / 1024.0f, 84.0f / 1024.0f, 1.0, program);
 
-	SheetSprite spr_bullet(spritesheet, 856.0f / 1024.0f, 421.0f / 1024.0f, 9.0f / 1024.0f, 54.0f / 1024.0f, 0.2, program);
+	SheetSprite spr_bullet(spritesheet, 856.0f / 1024.0f, 421.0f / 1024.0f, 9.0f / 1024.0f, 54.0f / 1024.0f, 1.0, program);
 
 	Spaceship* spaceship = new Spaceship(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 2.0f, 0.0f, -1.67f, modelMatrix, program, mySprite, false, false);
 
@@ -541,7 +541,7 @@ int main(int argc, char *argv[])
 	float yoffset = 1.85;
 
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_black = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy1);
+		Enemy* enemy_black = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy1);
 
 		//enemyMatrix.enemyVect[0][i] = enemy_black;
 		entities.push_back(enemy_black);
@@ -550,7 +550,7 @@ int main(int argc, char *argv[])
 	xoffset = -3.2;
 	yoffset -= 0.2;
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_blue = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy2);
+		Enemy* enemy_blue = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy2);
 		//enemy_blue->posX = xoffset;
 		//enemy_blue->posY = yoffset;
 		//enemy_blue->Render();
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
 	xoffset = -3.2;
 	yoffset -= 0.2;
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_green = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy3);
+		Enemy* enemy_green = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy3);
 
 		//enemyMatrix.enemyVect[2][i] = enemy_green;
 		entities.push_back(enemy_green);
@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
 	xoffset = -3.2;
 	yoffset -= 0.2;
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy4);
+		Enemy* enemy_red1 = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy4);
 
 		//enemyMatrix.enemyVect[3][i] = enemy_red1;
 		entities.push_back(enemy_red1);
@@ -584,7 +584,7 @@ int main(int argc, char *argv[])
 	yoffset -= 0.2;
 
 	for (int i = 0; i < 11; i++) {
-		Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, 0.0, 2.0f, 2.0f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy5);
+		Enemy* enemy_red2 = new Enemy(1.0f, 1.0f, 0.0, 0.15f, 0.15f, 0.0f, xoffset, yoffset, modelMatrix, program, spr_enemy5);
 
 		entities.push_back(enemy_red2);
 		//enemyMatrix.enemyVect[4][i] = enemy_red2;
