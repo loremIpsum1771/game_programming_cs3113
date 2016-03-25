@@ -1,56 +1,13 @@
-﻿Build started 3/16/2016 9:40:52 PM.
+﻿Build started 3/25/2016 2:43:51 PM.
      1>Project "C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\NYUCodebase\NYUCodebase.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\SDL2\include /IC:\SDL2_image\include /IC:\glew\include /IC:\SDL2_mixer\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _WINDOWS /D _MBCS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt assignment3.cpp
-         assignment3.cpp
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(199): warning C4305: 'argument' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(203): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(239): warning C4305: 'argument' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(279): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(280): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(287): warning C4305: '+=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(289): warning C4305: '=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(290): warning C4305: '-=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(300): warning C4305: '+=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(302): warning C4305: '=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(303): warning C4305: '-=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(309): warning C4305: '+=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(312): warning C4305: '=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(313): warning C4305: '-=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(319): warning C4305: '+=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(322): warning C4305: '=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(323): warning C4305: '-=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(330): warning C4305: '+=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(341): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(343): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(345): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(350): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(353): warning C4305: '-=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(362): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(382): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(383): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(361): warning C4101: 'bulletRight' : unreferenced local variable
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(361): warning C4101: 'bulletBottom' : unreferenced local variable
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(361): warning C4101: 'bulletLeft' : unreferenced local variable
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(361): warning C4101: 'bulletTop' : unreferenced local variable
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(408): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(414): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(512): warning C4305: 'argument' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(521): warning C4305: 'argument' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(540): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(541): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(548): warning C4305: '+=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(550): warning C4305: '=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(561): warning C4305: '+=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(563): warning C4305: '=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(570): warning C4305: '+=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(573): warning C4305: '=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(580): warning C4305: '+=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(583): warning C4305: '=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(584): warning C4305: '-=' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment3.cpp(591): warning C4305: '+=' : truncation from 'double' to 'float'
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\SDL2\include /IC:\SDL2_image\include /IC:\glew\include /IC:\SDL2_mixer\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _WINDOWS /D _MBCS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt assignment4.cpp
+         assignment4.cpp
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(237): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(241): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(474): warning C4305: 'argument' : truncation from 'double' to 'float'
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\SDL2_mixer\lib\x86 /LIBPATH:C:\SDL2\lib\x86 /LIBPATH:C:\SDL2_image\lib\x86 /LIBPATH:C:\glew\lib\Release\Win32 SDL2.lib SDL2_mixer.lib glew32.lib SDL2main.lib SDL2_image.lib OpenGL32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.lib" /MACHINE:X86 Debug\assignment3.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\SDL2_mixer\lib\x86 /LIBPATH:C:\SDL2\lib\x86 /LIBPATH:C:\SDL2_image\lib\x86 /LIBPATH:C:\glew\lib\Release\Win32 SDL2.lib SDL2_mixer.lib glew32.lib SDL2main.lib SDL2_image.lib OpenGL32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.lib" /MACHINE:X86 Debug\assignment4.obj
          Debug\Matrix.obj
          Debug\ShaderProgram.obj
          NYUCodebase.vcxproj -> C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.exe
@@ -58,4 +15,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:03.85
+Time Elapsed 00:00:03.01
