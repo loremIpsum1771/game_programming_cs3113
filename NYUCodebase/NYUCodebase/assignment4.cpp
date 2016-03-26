@@ -19,11 +19,12 @@
 #define RESOURCE_FOLDER "NYUCodebase.app/Contents/Resources/"
 #endif
 
-#define  LEVEL_HEIGHT 13
+#define  LEVEL_HEIGHT 16
 #define LEVEL_WIDTH 22
-#define TILE_SIZE 80.0f
-#define SPRITE_COUNT_X 13
-#define SPRITE_COUNT_Y 13
+#define TILE_SIZE 0.35f
+#define SPRITE_COUNT_X 3
+#define SPRITE_COUNT_Y 8
+
 
 SDL_Window* displayWindow;
 
@@ -41,7 +42,6 @@ GLuint LoadTexture(const char *image_path) {
 
 class SheetSprite {
 public:
-
 	SheetSprite(unsigned int textureID, float u, float v, float width, float height, float size, ShaderProgram* program)
 		:textureID(textureID), u(u), v(v), width(width), height(height), size(size), program(program) {
 	}
@@ -103,7 +103,6 @@ public:
 
 	bool isStatic;
 	EntityType entityType;
-	
 	float collidedTop = false;
 	float collidedBottom = false;
 	float collidedLeft = false;
@@ -313,8 +312,6 @@ void worldToTileCoordinates(float worldX, float worldY, int *gridX, int *gridY) 
 
 void UpdateGameLevel(ShaderProgram* program, float &elapsed,  Matrix &modelM, std::string &text) {
 
-	
-
 	////Check if each of the bullets has hit any of the enemies
 	//for (int i = 0; i < bullets.size(); i++) {
 	//	for (int j = 0; j < entities.size(); j++) {
@@ -338,8 +335,9 @@ void UpdateGameLevel(ShaderProgram* program, float &elapsed,  Matrix &modelM, st
 }
 
 void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], std::vector<GLuint> sSheetIds) {	
+	program->setModelMatrix(modelM);
 	for (int y = 0; y < LEVEL_HEIGHT; y++) {
-		for (int x = 0; x < LEVEL_WIDTH; x++) {
+		for (int x = 0; x < LEVEL_WIDTH; x++) {		
 			if (levelData[y][x] != 0) {
 				float u = (float)(((int)levelData[y][x]) % SPRITE_COUNT_X) / (float)SPRITE_COUNT_X;
 				float v = (float)(((int)levelData[y][x]) / SPRITE_COUNT_X) / (float)SPRITE_COUNT_Y;
@@ -372,11 +370,6 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 			}
 		}
 	}
-	
-	
-	
-	
-
 	
 }
 
@@ -434,7 +427,7 @@ void Render(ShaderProgram* program, Matrix &modelM, std::string &text, int fontT
 		break;
 
 	case STATE_GAME_LEVEL:
-
+		modelM.Translate(-3.5, 2.0, 0.0);
 		RenderGameLevel(program, modelM, text, levelData,sSheetIds);
 		break;
 
@@ -484,9 +477,9 @@ int main(int argc, char *argv[])
 
 	
 	int levelData[LEVEL_HEIGHT][LEVEL_WIDTH] = {
-		{ 1,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5 },
-		{ 0,5,4,4,4,4,4,4,0,0,0,0,0,0,4,4,4,4,4,4,5,0 },
-		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
+		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
+		{ 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4 },
+		{ 4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
 		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
 		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
 		{ 0,5,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,5,0 },
@@ -497,6 +490,10 @@ int main(int argc, char *argv[])
 		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
 		{ 0,5,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,5,0 },
 		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
+		{ 0,5,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,5,0 },
+		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
+		{ 0,5,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,5,0 }
+		
 		
 	};
 
