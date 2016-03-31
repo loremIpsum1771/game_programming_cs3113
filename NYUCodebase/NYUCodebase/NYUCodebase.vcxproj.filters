@@ -61,6 +61,12 @@
     <Image Include="sheet.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="spritesheet_aliens.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="characters_1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="hyruletemple.mp3">

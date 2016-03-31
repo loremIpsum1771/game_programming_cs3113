@@ -12,6 +12,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <set>
 
 #ifdef _WINDOWS
 #define RESOURCE_FOLDER ""
@@ -19,11 +20,14 @@
 #define RESOURCE_FOLDER "NYUCodebase.app/Contents/Resources/"
 #endif
 
-#define  LEVEL_HEIGHT 16
+#define  LEVEL_HEIGHT 13
 #define LEVEL_WIDTH 22
-#define TILE_SIZE 0.35f
+#define TILE_SIZE 0.315f
 #define SPRITE_COUNT_X 3
 #define SPRITE_COUNT_Y 8
+
+#define FIXED_TIMESTEP 0.0166666f
+#define MAX_TIMESTEPS 6
 
 
 SDL_Window* displayWindow;
@@ -75,6 +79,37 @@ public:
 		glDisableVertexAttribArray(program->positionAttribute);
 		glDisableVertexAttribArray(program->texCoordAttribute);
 	}
+
+
+	void DrawUniformSpr(ShaderProgram *program, int index, int spriteCountX, int spriteCountY) {
+		float u = (float)(((int)index) % spriteCountX) / (float)spriteCountX;
+		float v = (float)(((int)index) / spriteCountX) / (float)spriteCountY;
+		float spriteWidth = 1.0 / (float)spriteCountX;
+		float spriteHeight = 1.0 / (float)spriteCountY;
+		GLfloat texCoords[] = {
+			u, v + spriteHeight,
+			u + spriteWidth, v,
+			u, v,
+			u + spriteWidth, v,
+			u, v + spriteHeight,
+			u + spriteWidth, v + spriteHeight
+		};
+		float vertices[] = { -0.25f, -0.25f, 0.25f, 0.25f, -0.25f, 0.25f, 0.25f, 0.25f, -0.25f,
+			-0.25f, 0.25f, -0.25f };
+		// our regular sprite drawing
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		//float vertices2[] = { -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5 };
+		glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
+		glEnableVertexAttribArray(program->positionAttribute);
+		//float texCoords2[] = { 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0 };
+		glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords);
+		glEnableVertexAttribArray(program->texCoordAttribute);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDisableVertexAttribArray(program->positionAttribute);
+		glDisableVertexAttribArray(program->texCoordAttribute);
+	}
+
+
 	float size;
 	unsigned int textureID;
 	float u;
@@ -84,29 +119,49 @@ public:
 	ShaderProgram* program;
 };
 
+float lerp(float v0, float v1, float t) {
+	return (1.0 - t)*v0 + t*v1;
+}
 
 enum EntityType {ENTITY_PLAYER, ENTITY_ENEMY, ENTITY_COIN};
 
 class Entity {
 
 public:
-	Entity(float xDir, float yDir, float width, float height, float speed, float x, float y, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite) :
+	Entity(float xDir, float yDir, float width, float height, float speed, float x, float y, Matrix &modelMatrix,Matrix &viewMatrix ,ShaderProgram* program, SheetSprite newSprite) :
 		xDirection(xDir), yDirection(yDir), width(width), height(height), speed(speed), x(x), y(y), modelM(modelMatrix), program(program), mySprite(newSprite) {
 		vertices = { -0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f };
+		friction_x = -0.25;
+		friction_y = -0.25;
+		velocity_x = 2.25;
+		velocity_y = 0.0;
+		acceleration_x = 0.0;
+		acceleration_y = 0.0;
+		collidedTop = false;
+		collidedBottom = false;
+		collidedLeft = false;
+		collidedRight = false;
+		grounded = false;
+		gravityOn = true;
+		gravity = -0.02;
 	}
 	Matrix modelM;
-
+	Matrix viewM;
+	bool grounded;
 	float acceleration_x;
 	float acceleration_y;
 	float velocity_x;
 	float velocity_y;
-
+	float friction_x;
+	float friction_y;
+	bool gravityOn;
+	float gravity;
 	bool isStatic;
 	EntityType entityType;
-	float collidedTop = false;
-	float collidedBottom = false;
-	float collidedLeft = false;
-	float collidedRight = false;
+	float collidedTop;
+	float collidedBottom;
+	float collidedLeft;
+	float collidedRight;
 
 	float xDirection, yDirection, speed;
 	// Textures
@@ -121,14 +176,37 @@ public:
 	SheetSprite mySprite;
 	ShaderProgram* program;
 
-
+	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
 	virtual void Update(float elapsed) {
-		// move stuff and check for collisions
-		//posX += elapsed;
-		//posY += elapsed;
+		/*if (collidedBottom) {
+			gravityOn = false;
 
+		}*/
+		float minX = -3.5f;
+		float maxX = 3.5f;
+		if (keys[SDL_SCANCODE_LEFT] /*&& (x - (width / 2.0) >= minX)*/) {
+			//movingLeft = true;
+			//movingRight = false;
+			//velocity_x = lerp(velocity_x, 0.0f, elapsed * friction_x);
+			//velocity_x += acceleration_x * elapsed;
+			x += -1 * velocity_x * elapsed;
+		}
+		if (keys[SDL_SCANCODE_RIGHT] /*&& (x + (width / 2.0) <= maxX)*/) {
+			/*movingLeft = false;
+			movingRight = true;*/
+			//velocity_x = lerp(velocity_x, 0.0f, elapsed * friction_x);
+			//velocity_x += acceleration_x * elapsed;
+			x += 1 * velocity_x * elapsed;
+		}
+		if (gravityOn) {
+			velocity_y += gravity;
+		}
 
+		y += 1 * velocity_y * elapsed;
+		//scroll screen
+		//viewM.Translate(x, y, 0.0);
+		
 	}
 
 	void Render() {
@@ -152,6 +230,14 @@ public:
 		mySprite.Draw();
 
 	}
+
+	void drawUniformSprite(int index, int sprcount_x, int sprcount_y ) {
+		program->setModelMatrix(modelM);
+		modelM.identity();
+		modelM.Translate(x, y, 0.0);
+		modelM.Scale(width, height, 0.0);
+		mySprite.DrawUniformSpr(program, index, sprcount_x, sprcount_y);
+	}
 };
 
 class Room  {
@@ -172,62 +258,60 @@ public:
 
 };
 
-class Spaceship : public Entity {
-public:
+//class Spaceship : public Entity {
+//public:
+//	Spaceship(float xDirect, float yDirect, float width, float height, float speed,
+//		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite, bool movingLeft, bool movingRight) :
+//		Entity(xDirect, yDirect, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite), movingLeft(movingLeft), movingRight(movingRight) {}
+//
+//	virtual void update(float elapsed) {
+//
+//	}
+//
+//	bool movingLeft;
+//	bool movingRight;
+//};
 
+//class Enemy : public Entity {
+//public:
+//	Enemy(float xDirect, float yDirect,  float width, float height, float speed,
+//		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite);
+//	bool isSolid;
+//	bool floatingLeft;
+//	bool floatingRight;
+//	int leftmost;
+//	int rightmost;
+//	int vectPosX;
+//	int vectPosY;
+//
+//};
 
-	Spaceship(float xDirect, float yDirect, float width, float height, float speed,
-		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite, bool movingLeft, bool movingRight) :
-		Entity(xDirect, yDirect, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite), movingLeft(movingLeft), movingRight(movingRight) {}
-
-	virtual void update(float elapsed) {
-
-	}
-
-	bool movingLeft;
-	bool movingRight;
-};
-
-class Enemy : public Entity {
-public:
-	Enemy(float xDirect, float yDirect,  float width, float height, float speed,
-		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite);
-	bool isSolid;
-	bool floatingLeft;
-	bool floatingRight;
-	int leftmost;
-	int rightmost;
-	int vectPosX;
-	int vectPosY;
-
-};
-
-class Bullet : public Entity {
-
-public:
-
-	Bullet(float xDirect, float yDirect, float width, float height, float speed,
-		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite, float angle, float timeAlive)
-		: Entity(xDirect, yDirect, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite), angle(angle), timeAlive(timeAlive) {
-	}
-
-	float angle;
-	float timeAlive;
-
-};
-
-Enemy::Enemy(float xDirect, float yDirect,  float width, float height, float speed,
-	float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite) :
-	Entity(xDirect, yDirect, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite) {
-	leftmost = 0;
-	rightmost = 10;
-	vectPosX = 0;
-	vectPosY = 0;
-	isSolid = true;
-	floatingLeft = false;
-	floatingRight = true;
-}
-std::vector<Enemy*> entities;
+//class Bullet : public Entity {
+//
+//public:
+//
+//	Bullet(float xDirect, float yDirect, float width, float height, float speed,
+//		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite, float angle, float timeAlive)
+//		: Entity(xDirect, yDirect, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite), angle(angle), timeAlive(timeAlive) {
+//	}
+//
+//	float angle;
+//	float timeAlive;
+//
+//};
+//
+//Enemy::Enemy(float xDirect, float yDirect,  float width, float height, float speed,
+//	float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite) :
+//	Entity(xDirect, yDirect, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite) {
+//	leftmost = 0;
+//	rightmost = 10;
+//	vectPosX = 0;
+//	vectPosY = 0;
+//	isSolid = true;
+//	floatingLeft = false;
+//	floatingRight = true;
+//}
+//std::vector<Enemy*> entities;
 
 
 void drawText(ShaderProgram *program, int fontTexture, std::string text, float size, float spacing, Matrix &modelM) {
@@ -268,74 +352,97 @@ void drawText(ShaderProgram *program, int fontTexture, std::string text, float s
 	glDisableVertexAttribArray(program->texCoordAttribute);
 }
 
+std::set<int> solidTiles = { 6 };
 
-
-
-
-
-
-
-
-bool checkCollision(Enemy* anEnemy, Bullet* aBullet) {
-	float enemyTop = anEnemy->y + (anEnemy->height / 2.0f);
-	float enemyBottom = anEnemy->y - (anEnemy->height / 2.0f);
-	float enemyRight = anEnemy->x + (anEnemy->width / 2.0f);
-	float enemyLeft = anEnemy->x - (anEnemy->width / 2.0f);
-
-	float bulletTop = aBullet->y + (aBullet->height / 2.0f);
-	float bulletBottom = aBullet->y - (aBullet->height / 2.0f);
-	float bulletLeft = aBullet->x - (aBullet->width / 2.0f);
-	float bulletRight = aBullet->x + (aBullet->width / 2.0f);
-
-	//This is supposed to check that if the objects are not intersecting, return false
-	if (
-		(bulletBottom > enemyTop) ||
-		(bulletTop < enemyBottom) ||
-		(bulletLeft > enemyRight) ||
-		(bulletRight < enemyLeft)
-		) {
-		return false;
+struct Vec2 {
+	int x;
+	int y;
+	Vec2() {
+		//x = 0;
+		//y = 0;
 	}
-	else {
-		return true;
+	bool isPositive() {
+		if (x >= 0 && y >= 0)return true;
+		else return false;
 	}
+	bool withinMap() {
+		if (x <= LEVEL_WIDTH && y <= LEVEL_HEIGHT)return true;
+		else return false;
+	}
+};
+
+Vec2 worldToTileCoordinates(float worldX, float worldY) {
+	Vec2 gridCoordinates;
+	gridCoordinates.x = (int)(worldX / TILE_SIZE);
+	gridCoordinates.y = (int)(-worldY / TILE_SIZE);
+	//std::cout << "grid coordinates.x " << gridCoordinates.x << "grid coordinates.y " << gridCoordinates.y << std::endl;
+	return gridCoordinates;
+}
+
+bool checkCollision(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
+	gCoordinates = worldToTileCoordinates(anEntity->x , anEntity->y - anEntity->height/2.0f);
+
+	const bool tileIsSolid = solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
+	
+
+	if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
+		//Entity collides with tile from above	
+		float tilebyGcoord = -TILE_SIZE *gCoordinates.y;
+		float entityBottom = anEntity->y - (anEntity->height) / 2;
+		if((-TILE_SIZE *gCoordinates.y) >= (anEntity->y - ((anEntity->height)-0.02) / 2)){
+			anEntity->collidedBottom = true;
+			std::cout << "collided" << std::endl;
+			return true;
+		}
+		else return false;
+	}
+	else return false;
+
+
 }
 void resetGame(ShaderProgram* program, Matrix &modelM) {
 	
 }
 
 
-void worldToTileCoordinates(float worldX, float worldY, int *gridX, int *gridY) {
-	*gridX = (int)(worldX / TILE_SIZE);
-	*gridY = (int)(-worldY / TILE_SIZE);
-}
 
-void UpdateGameLevel(ShaderProgram* program, float &elapsed,  Matrix &modelM, std::string &text) {
 
-	////Check if each of the bullets has hit any of the enemies
-	//for (int i = 0; i < bullets.size(); i++) {
-	//	for (int j = 0; j < entities.size(); j++) {
-	//		if (entities[j] != nullptr && bullets[i] != nullptr) {
-	//			if (checkCollision(entities[j], bullets[i])) {
-	//				std::cout << "bullets y position: " << bullets[i]->y << std::endl;
-	//				std::cout << " hit enemy y position: " << entities[j]->y << std::endl;
-	//				std::cout << "bullets x position: " << bullets[i]->x << std::endl;
-	//				std::cout << " hit enemy x position: " << entities[j]->x << std::endl;
-	//				delete bullets[i];
-	//				bullets[i] = nullptr;
-	//				delete entities[j];
-	//				entities[j] = nullptr;
-
-	//			}
-	//		}
-	//	}
+void UpdateGameLevel(ShaderProgram* program, float &elapsed,  Matrix &modelM, std::string &text, Entity* player, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], Matrix &viewM) {
+	player->Update(elapsed);
+	
+	Vec2 tileCoords;
+	//for (int y = 0; y < LEVEL_HEIGHT; y++) {
+		//for (int x = 0; x < LEVEL_WIDTH; x++) {
+			
+			checkCollision(player, tileCoords, levelData);
+			if (player->collidedBottom) {
+				player->gravityOn = false;
+				//float tilebyGcoord = -TILE_SIZE *tileCoords.y;
+				//float entityBottom = player->y - (player->height) / 2;
+				player->y = (-TILE_SIZE *tileCoords.y) - (player->y - ((player->height)) / 2);
+				//player->y = 0.5;
+				player->velocity_y = 0.0;
+				//player->collidedBottom = false;
+				player->grounded = true;
+			}
+		//}
 	//}
 
+	
+	
 
 }
 
-void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], std::vector<GLuint> sSheetIds) {	
+void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], std::vector<GLuint> sSheetIds,Entity* player, Matrix& viewM) {	
 	program->setModelMatrix(modelM);
+	/*program->setViewMatrix(viewM);
+	viewM.identity();
+	viewM.Translate(-player->x, -player->y, 0.0);
+*/
+	//program->setModelMatrix(viewM);
+
+	//modelM.identity();
+	//modelM.Translate(-3.5, 2.0, 0.0);
 	for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		for (int x = 0; x < LEVEL_WIDTH; x++) {		
 			if (levelData[y][x] != 0) {
@@ -343,6 +450,9 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 				float v = (float)(((int)levelData[y][x]) / SPRITE_COUNT_X) / (float)SPRITE_COUNT_Y;
 				float spriteWidth = 1.0f / (float)SPRITE_COUNT_X;
 				float spriteHeight = 1.0f / (float)SPRITE_COUNT_Y;
+
+				//u *= spriteWidth* 2;
+				//v *= spriteHeight* 2;
 				float vertices[] = {
 					TILE_SIZE * x, -TILE_SIZE * y,
 					TILE_SIZE * x, (-TILE_SIZE * y) - TILE_SIZE,
@@ -376,10 +486,11 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_PLAYER_WINS };
 int state;
 
-std::vector<bool> isTileSolid;
 
 
-void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string &text) {
+
+
+void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string &text, Entity* player, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], Matrix &viewM) {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 	int numNull = 0;
 	switch (state) {
@@ -394,9 +505,7 @@ void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string 
 		break;
 
 	case STATE_GAME_LEVEL:
-		
-		
-		UpdateGameLevel(program, elapsed, modelM, text);
+		UpdateGameLevel(program, elapsed, modelM, text, player,levelData, viewM);
 
 		
 	case STATE_PLAYER_WINS:
@@ -414,7 +523,7 @@ void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string 
 
 
 
-void Render(ShaderProgram* program, Matrix &modelM, std::string &text, int fontTexture, float size, float spacing, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], std::vector<GLuint> sSheetIds) {
+void Render(ShaderProgram* program, Matrix &modelM, std::string &text, int fontTexture, float size, float spacing, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], std::vector<GLuint> sSheetIds, Entity* player, Matrix& viewM) {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	switch (state) {
@@ -427,8 +536,9 @@ void Render(ShaderProgram* program, Matrix &modelM, std::string &text, int fontT
 		break;
 
 	case STATE_GAME_LEVEL:
-		modelM.Translate(-3.5, 2.0, 0.0);
-		RenderGameLevel(program, modelM, text, levelData,sSheetIds);
+		//modelM.Translate(-3.5, 2.0, 0.0);
+		player->drawUniformSprite(0, 12, 8);
+		RenderGameLevel(program, modelM, text, levelData,sSheetIds,player,viewM);
 		break;
 
 	case STATE_PLAYER_WINS:
@@ -473,28 +583,32 @@ int main(int argc, char *argv[])
 
 	GLuint fontTexture = LoadTexture("font1.png");
 
+	GLuint player_S_Sheet = LoadTexture("characters_1.png");
+
+	SheetSprite  spr_player(player_S_Sheet, 0.0f , 0.0f, 0.0f, 0.0f, 0.22, program);
+
+	Entity* player = new Entity(0.0, 0.0, 0.7, 0.7, 2.0, 0.0, 0.7, modelMatrix, viewMatrix,program, spr_player);
+
+	//viewMatrix.Translate(-1.2, 1.2, 0.0);
+
 	std::vector<GLuint> textureVect = { spritesheet };
 
 	
 	int levelData[LEVEL_HEIGHT][LEVEL_WIDTH] = {
-		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-		{ 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4 },
-		{ 4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
-		{ 0,5,6,6,6,6,6,0,0,0,0,0,0,0,0,6,6,6,6,6,5,0 },
-		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0 },
-		{ 0,5,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,5,0 }
-		
-		
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
+		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
+		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
+		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
+		{ 6,0,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0 },
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+		{ 0,0,6,6,6,6,6,0,0,0,0,0,0,0,0,6,6,6,6,6,0,0 },
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+		{ 0,0,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0 },
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+	
 	};
 
 
@@ -512,17 +626,28 @@ int main(int argc, char *argv[])
 
 	while (!done) {
 		const Uint8 *keys = SDL_GetKeyboardState(NULL);
+
+		float ticks = (float)SDL_GetTicks() / 1000.0f;
+		float elapsed = ticks - lastFrameTicks;
+		lastFrameTicks = ticks;
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 				done = true;
 			}
 			if (keys[SDL_SCANCODE_SPACE] && state == STATE_GAME_LEVEL) {
-
+				if (player->grounded) {
+					player->velocity_y = 3.2;
+					player->y += 1 * player->velocity_y * elapsed;
+					//player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
+					//player->y += player->velocity_y * FIXED_TIMESTEP;
+					player->grounded = false;
+					player->gravityOn = true;
+				}
 			}
 		}
-		float ticks = (float)SDL_GetTicks() / 1000.0f;
-		float elapsed = ticks - lastFrameTicks;
-		lastFrameTicks = ticks;
+
+		
+
 
 
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -530,16 +655,24 @@ int main(int argc, char *argv[])
 
 		float minX = -3.5f;
 		float maxX = 3.5f;
-		if (keys[SDL_SCANCODE_LEFT] ) {
+		/*if (keys[SDL_SCANCODE_LEFT] ) {
 			
 		}
 		if (keys[SDL_SCANCODE_RIGHT] ) {
 			
+		}*/
+		
+
+		float fixedElapsed = elapsed;
+		if (fixedElapsed > FIXED_TIMESTEP * MAX_TIMESTEPS) {
+			fixedElapsed = FIXED_TIMESTEP * MAX_TIMESTEPS;
 		}
-
-
-		Update(program, elapsed,  modelMatrix, text);
-		Render(program, modelMatrix, text, fontTexture, 0.15f, 0.009f,levelData,textureVect);
+		//while (fixedElapsed >= FIXED_TIMESTEP) {
+			//fixedElapsed -= FIXED_TIMESTEP;
+			Update(program, fixedElapsed, modelMatrix, text, player,levelData,viewMatrix);
+			Render(program, modelMatrix, text, fontTexture, 0.15f, 0.009f, levelData, textureVect, player,viewMatrix);
+		//}
+		
 
 
 
