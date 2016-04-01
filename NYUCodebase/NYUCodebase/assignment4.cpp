@@ -143,7 +143,7 @@ public:
 		collidedRight = false;
 		grounded = false;
 		gravityOn = true;
-		gravity = -0.02;
+		gravity = -0.07;
 	}
 	Matrix modelM;
 	Matrix viewM;
@@ -185,23 +185,23 @@ public:
 		}*/
 		float minX = -3.5f;
 		float maxX = 3.5f;
-		if (keys[SDL_SCANCODE_LEFT] /*&& (x - (width / 2.0) >= minX)*/) {
+		if (keys[SDL_SCANCODE_LEFT] && !collidedLeft/*&& (x - (width / 2.0) >= minX)*/) {
 			//movingLeft = true;
 			//movingRight = false;
 			//velocity_x = lerp(velocity_x, 0.0f, elapsed * friction_x);
 			//velocity_x += acceleration_x * elapsed;
 			x += -1 * velocity_x * elapsed;
 		}
-		if (keys[SDL_SCANCODE_RIGHT] /*&& (x + (width / 2.0) <= maxX)*/) {
+		if (keys[SDL_SCANCODE_RIGHT] && !collidedRight/*&& (x + (width / 2.0) <= maxX)*/) {
 			/*movingLeft = false;
 			movingRight = true;*/
 			//velocity_x = lerp(velocity_x, 0.0f, elapsed * friction_x);
 			//velocity_x += acceleration_x * elapsed;
 			x += 1 * velocity_x * elapsed;
 		}
-		if (gravityOn) {
+		//if (gravityOn) {
 			velocity_y += gravity;
-		}
+		//}
 
 		y += 1 * velocity_y * elapsed;
 		//scroll screen
@@ -387,14 +387,29 @@ bool checkCollision(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HE
 
 	if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
 		//Entity collides with tile from above	
-		float tilebyGcoord = -TILE_SIZE *gCoordinates.y;
-		float entityBottom = anEntity->y - (anEntity->height) / 2;
-		if((-TILE_SIZE *gCoordinates.y) >= (anEntity->y - ((anEntity->height)-0.02) / 2)){
+		if((-TILE_SIZE *gCoordinates.y) >= (anEntity->y - (anEntity->height) / 2)){
 			anEntity->collidedBottom = true;
-			std::cout << "collided" << std::endl;
+			//std::cout << "collided" << std::endl;
+			return true;
+		}
+		//Entity collides with tile from below
+		/*else if ((anEntity->y + (anEntity->height) / 2) >= ((-TILE_SIZE *gCoordinates.y)- TILE_SIZE)) {
+			anEntity->collidedTop = true;
+
+			return true;
+		}*/
+		//Entity collides with tile from the Right
+		else if ((anEntity->x - anEntity->width / 2) <= ((TILE_SIZE * gCoordinates.x) + TILE_SIZE)) {
+			anEntity->collidedLeft = true;
+			return true;
+		}
+		//Entity collides with tile from the left
+		else if ((anEntity->x + anEntity->width / 2) >= ((TILE_SIZE * gCoordinates.x) - TILE_SIZE)) {
+			anEntity->collidedRight = true;
 			return true;
 		}
 		else return false;
+
 	}
 	else return false;
 
@@ -407,24 +422,44 @@ void resetGame(ShaderProgram* program, Matrix &modelM) {
 
 
 
-void UpdateGameLevel(ShaderProgram* program, float &elapsed,  Matrix &modelM, std::string &text, Entity* player, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], Matrix &viewM) {
+void UpdateGameLevel(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string &text, Entity* player, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], Matrix &viewM) {
 	player->Update(elapsed);
-	
+
 	Vec2 tileCoords;
 	//for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		//for (int x = 0; x < LEVEL_WIDTH; x++) {
-			
-			checkCollision(player, tileCoords, levelData);
-			if (player->collidedBottom) {
-				player->gravityOn = false;
+
+		if (checkCollision(player, tileCoords, levelData)) {
+				//player->gravityOn = false;
 				//float tilebyGcoord = -TILE_SIZE *tileCoords.y;
 				//float entityBottom = player->y - (player->height) / 2;
-				player->y = (-TILE_SIZE *tileCoords.y) - (player->y - ((player->height)) / 2);
+			if (player->collidedBottom) {
+				player->y += fabs((-TILE_SIZE *tileCoords.y) - (player->y - ((player->height)) / 2.0));
 				//player->y = 0.5;
 				player->velocity_y = 0.0;
 				//player->collidedBottom = false;
-				player->grounded = true;
+				//player->grounded = true;
+
 			}
+
+			else if (player->collidedTop) {
+				player->y += (player->y + (player->height) / 2) - ((-TILE_SIZE *tileCoords.y) - TILE_SIZE);
+				player->velocity_y = 0.0;
+			}
+
+			else if (player->collidedLeft) {
+				player->x += ((TILE_SIZE * tileCoords.x) + TILE_SIZE) - (player->x - player->width / 2);
+				player->velocity_x = 0.0;
+			}
+			else if (player->collidedRight) {
+				player->x += (player->x + player->width / 2) - ((TILE_SIZE * tileCoords.x) - TILE_SIZE);
+				player->velocity_x = 0.0;
+			}
+
+			}
+		player->collidedLeft = false;
+		player->collidedRight = false;
+		player->collidedTop = false;
 		//}
 	//}
 
@@ -435,14 +470,17 @@ void UpdateGameLevel(ShaderProgram* program, float &elapsed,  Matrix &modelM, st
 
 void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], std::vector<GLuint> sSheetIds,Entity* player, Matrix& viewM) {	
 	program->setModelMatrix(modelM);
-	/*program->setViewMatrix(viewM);
+	program->setViewMatrix(viewM);
 	viewM.identity();
 	viewM.Translate(-player->x, -player->y, 0.0);
-*/
+
 	//program->setModelMatrix(viewM);
 
 	//modelM.identity();
 	//modelM.Translate(-3.5, 2.0, 0.0);
+
+	std::vector<float> vertexData;
+	std::vector<float> texCoordData;
 	for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		for (int x = 0; x < LEVEL_WIDTH; x++) {		
 			if (levelData[y][x] != 0) {
@@ -451,35 +489,37 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 				float spriteWidth = 1.0f / (float)SPRITE_COUNT_X;
 				float spriteHeight = 1.0f / (float)SPRITE_COUNT_Y;
 
-				//u *= spriteWidth* 2;
-				//v *= spriteHeight* 2;
-				float vertices[] = {
+				u *= spriteWidth* 2;
+				v *= spriteHeight* 2;
+				vertexData.insert(vertexData.begin(), {
 					TILE_SIZE * x, -TILE_SIZE * y,
 					TILE_SIZE * x, (-TILE_SIZE * y) - TILE_SIZE,
 					(TILE_SIZE * x) + TILE_SIZE, (-TILE_SIZE * y) - TILE_SIZE,
 					TILE_SIZE * x, -TILE_SIZE * y,
 					(TILE_SIZE * x) + TILE_SIZE, (-TILE_SIZE * y) - TILE_SIZE,
 					(TILE_SIZE * x) + TILE_SIZE, -TILE_SIZE * y
-				};
-				GLfloat texCoords[] =  {
+				});
+
+				texCoordData.insert(texCoordData.begin(), {
 					u, v,
 					u, v + (spriteHeight),
 					u + spriteWidth, v + (spriteHeight),
 					u, v,
 					u + spriteWidth, v + (spriteHeight),
 					u + spriteWidth, v
-				};
-				glBindTexture(GL_TEXTURE_2D, sSheetIds[0]);
-				glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
-				glEnableVertexAttribArray(program->positionAttribute);
-				glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords);
-				glEnableVertexAttribArray(program->texCoordAttribute);
-				glDrawArrays(GL_TRIANGLES, 0, 6);
-				glDisableVertexAttribArray(program->positionAttribute);
-				glDisableVertexAttribArray(program->texCoordAttribute);
+				});
 			}
 		}
 	}
+
+	glBindTexture(GL_TEXTURE_2D, sSheetIds[0]);
+	glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertexData.data());
+	glEnableVertexAttribArray(program->positionAttribute);
+	glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoordData.data());
+	glEnableVertexAttribArray(program->texCoordAttribute);
+	glDrawArrays(GL_TRIANGLES, 0, vertexData.size() / 2);
+	glDisableVertexAttribArray(program->positionAttribute);
+	glDisableVertexAttribArray(program->texCoordAttribute);
 	
 }
 
@@ -587,7 +627,7 @@ int main(int argc, char *argv[])
 
 	SheetSprite  spr_player(player_S_Sheet, 0.0f , 0.0f, 0.0f, 0.0f, 0.22, program);
 
-	Entity* player = new Entity(0.0, 0.0, 0.7, 0.7, 2.0, 0.0, 0.7, modelMatrix, viewMatrix,program, spr_player);
+	Entity* player = new Entity(0.0, 0.0, 0.315, 0.315, 2.0, 0.3, 0.7, modelMatrix, viewMatrix,program, spr_player);
 
 	//viewMatrix.Translate(-1.2, 1.2, 0.0);
 
@@ -596,9 +636,9 @@ int main(int argc, char *argv[])
 	
 	int levelData[LEVEL_HEIGHT][LEVEL_WIDTH] = {
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
-		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
-		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
+		{ 0,0,0,0,0,6,0,6,6,6,6,6,6,6,6,0,0,0,0,0,0,6 },
+		{ 6,0,0,0,0,6,0,0,0,0,6,6,6,6,6,6,6,6,6,6,6,6 },
+		{ 6,6,6,6,6,0,0,0,0,0,6,6,6,6,6,6,6,6,6,6,6,6 },
 		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
 		{ 6,0,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0 },
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -634,13 +674,14 @@ int main(int argc, char *argv[])
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 				done = true;
 			}
-			if (keys[SDL_SCANCODE_SPACE] && state == STATE_GAME_LEVEL) {
-				if (player->grounded) {
-					player->velocity_y = 3.2;
+			if (keys[SDL_SCANCODE_SPACE] && state == STATE_GAME_LEVEL ) {
+				if (player->collidedBottom) {
+					player->velocity_y = 0.75;
 					player->y += 1 * player->velocity_y * elapsed;
 					//player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
 					//player->y += player->velocity_y * FIXED_TIMESTEP;
-					player->grounded = false;
+					player->collidedBottom = false;
+					//player->grounded = false;
 					player->gravityOn = true;
 				}
 			}

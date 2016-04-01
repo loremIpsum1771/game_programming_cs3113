@@ -1,4 +1,4 @@
-﻿Build started 3/31/2016 4:01:03 PM.
+﻿Build started 4/1/2016 1:19:08 PM.
      1>Project "C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\NYUCodebase\NYUCodebase.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\SDL2\include /IC:\SDL2_image\include /IC:\glew\include /IC:\SDL2_mixer\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _WINDOWS /D _MBCS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt assignment4.cpp
@@ -9,10 +9,10 @@
      1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(146): warning C4305: '=' : truncation from 'double' to 'float'
      1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(320): warning C4305: 'argument' : truncation from 'double' to 'float'
      1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(324): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(577): warning C4305: 'argument' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(588): warning C4305: 'argument' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(590): warning C4305: 'argument' : truncation from 'double' to 'float'
-     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(639): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(437): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(617): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(628): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\assignment4.cpp(630): warning C4305: 'argument' : truncation from 'double' to 'float'
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\SDL2_mixer\lib\x86 /LIBPATH:C:\SDL2\lib\x86 /LIBPATH:C:\SDL2_image\lib\x86 /LIBPATH:C:\glew\lib\Release\Win32 SDL2.lib SDL2_mixer.lib glew32.lib SDL2main.lib SDL2_image.lib OpenGL32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.lib" /MACHINE:X86 Debug\assignment4.obj
          Debug\Matrix.obj
@@ -22,4 +22,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.33
+Time Elapsed 00:00:02.71
