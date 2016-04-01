@@ -22,9 +22,9 @@
 
 #define  LEVEL_HEIGHT 13
 #define LEVEL_WIDTH 22
-#define TILE_SIZE 0.315f
-#define SPRITE_COUNT_X 3
-#define SPRITE_COUNT_Y 8
+#define TILE_SIZE 0.215f
+#define SPRITE_COUNT_X 8
+#define SPRITE_COUNT_Y 16
 
 #define FIXED_TIMESTEP 0.0166666f
 #define MAX_TIMESTEPS 6
@@ -185,7 +185,7 @@ public:
 		}*/
 		float minX = -3.5f;
 		float maxX = 3.5f;
-		if (keys[SDL_SCANCODE_LEFT] && !collidedLeft/*&& (x - (width / 2.0) >= minX)*/) {
+		if (keys[SDL_SCANCODE_LEFT] /*&& !collidedLeft&& (x - (width / 2.0) >= minX)*/) {
 			//movingLeft = true;
 			//movingRight = false;
 			//velocity_x = lerp(velocity_x, 0.0f, elapsed * friction_x);
@@ -379,7 +379,7 @@ Vec2 worldToTileCoordinates(float worldX, float worldY) {
 	return gridCoordinates;
 }
 
-bool checkCollision(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
+bool checkCollisionBottom(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 	gCoordinates = worldToTileCoordinates(anEntity->x , anEntity->y - anEntity->height/2.0f);
 
 	const bool tileIsSolid = solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
@@ -392,29 +392,58 @@ bool checkCollision(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HE
 			//std::cout << "collided" << std::endl;
 			return true;
 		}
-		//Entity collides with tile from below
-		/*else if ((anEntity->y + (anEntity->height) / 2) >= ((-TILE_SIZE *gCoordinates.y)- TILE_SIZE)) {
-			anEntity->collidedTop = true;
-
-			return true;
-		}*/
-		//Entity collides with tile from the Right
-		else if ((anEntity->x - anEntity->width / 2) <= ((TILE_SIZE * gCoordinates.x) + TILE_SIZE)) {
-			anEntity->collidedLeft = true;
-			return true;
-		}
-		//Entity collides with tile from the left
-		else if ((anEntity->x + anEntity->width / 2) >= ((TILE_SIZE * gCoordinates.x) - TILE_SIZE)) {
-			anEntity->collidedRight = true;
-			return true;
-		}
 		else return false;
-
 	}
 	else return false;
 
 
 }
+
+bool checkCollisionTop(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
+	gCoordinates = worldToTileCoordinates(anEntity->x, anEntity->y - anEntity->height / 2.0f);
+	const bool tileIsSolid = solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
+	if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
+		//Entity collides with tile from below
+		if ((anEntity->y + (anEntity->height) / 2) <= ((-TILE_SIZE *gCoordinates.y)- TILE_SIZE)) {
+		anEntity->collidedTop = true;
+		return true;
+		}
+		else return false;
+	}
+	else return false;
+}
+
+bool checkCollisionLeft(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
+	gCoordinates = worldToTileCoordinates(anEntity->x, anEntity->y - anEntity->height / 2.0f);
+	const bool tileIsSolid = solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
+	if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
+		//Left side of Entity collides with tile
+		if ((anEntity->x + anEntity->width / 2) >= ((TILE_SIZE * gCoordinates.x) - TILE_SIZE)) {
+			anEntity->collidedLeft = true;
+			return true;
+		}
+		else return false;
+	}
+	else return false;
+}
+
+bool checkCollisionRight(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
+	gCoordinates = worldToTileCoordinates(anEntity->x, anEntity->y - anEntity->height / 2.0f);
+	const bool tileIsSolid = solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
+	if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
+		//Right side of entity collides with tile
+		if ((anEntity->x - anEntity->width / 2) <= ((TILE_SIZE * gCoordinates.x) + TILE_SIZE)) {
+			anEntity->collidedRight = true;
+			return true;
+		}
+		else return false;
+	}
+	else return false;
+}
+
+
+
+
 void resetGame(ShaderProgram* program, Matrix &modelM) {
 	
 }
@@ -429,37 +458,37 @@ void UpdateGameLevel(ShaderProgram* program, float &elapsed, Matrix &modelM, std
 	//for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		//for (int x = 0; x < LEVEL_WIDTH; x++) {
 
-		if (checkCollision(player, tileCoords, levelData)) {
-				//player->gravityOn = false;
-				//float tilebyGcoord = -TILE_SIZE *tileCoords.y;
-				//float entityBottom = player->y - (player->height) / 2;
-			if (player->collidedBottom) {
-				player->y += fabs((-TILE_SIZE *tileCoords.y) - (player->y - ((player->height)) / 2.0));
-				//player->y = 0.5;
-				player->velocity_y = 0.0;
-				//player->collidedBottom = false;
-				//player->grounded = true;
+	if (checkCollisionBottom(player, tileCoords, levelData)) {
+		//player->gravityOn = false;
+		//float tilebyGcoord = -TILE_SIZE *tileCoords.y;
+		//float entityBottom = player->y - (player->height) / 2;
 
-			}
+		player->y += fabs((-TILE_SIZE *tileCoords.y) - (player->y - ((player->height)) / 2.0));
+		//player->y = 0.5;
+		player->velocity_y = 0.0;
+		//player->collidedBottom = false;
+		//player->grounded = true;
 
-			else if (player->collidedTop) {
-				player->y += (player->y + (player->height) / 2) - ((-TILE_SIZE *tileCoords.y) - TILE_SIZE);
-				player->velocity_y = 0.0;
-			}
+	}
 
-			else if (player->collidedLeft) {
-				player->x += ((TILE_SIZE * tileCoords.x) + TILE_SIZE) - (player->x - player->width / 2);
-				player->velocity_x = 0.0;
-			}
-			else if (player->collidedRight) {
-				player->x += (player->x + player->width / 2) - ((TILE_SIZE * tileCoords.x) - TILE_SIZE);
-				player->velocity_x = 0.0;
-			}
+	else if (checkCollisionTop(player,tileCoords,levelData)) {
+		player->y += (player->y + (player->height) / 2) - ((-TILE_SIZE *tileCoords.y) - TILE_SIZE);
+		player->velocity_y = 0.0;
+	}
 
-			}
-		player->collidedLeft = false;
+	else if (checkCollisionLeft(player, tileCoords, levelData)) {
+		player->x += ((TILE_SIZE * tileCoords.x) + TILE_SIZE) - (player->x - player->width / 2);
+		player->velocity_x = 0.0;
+	}
+	else if (checkCollisionRight(player, tileCoords, levelData)) {
+		player->x += (player->x + player->width / 2) - ((TILE_SIZE * tileCoords.x) - TILE_SIZE);
+		player->velocity_x = 0.0;
+	}
+
+			
+		/*player->collidedLeft = false;
 		player->collidedRight = false;
-		player->collidedTop = false;
+		player->collidedTop = false;*/
 		//}
 	//}
 
@@ -483,14 +512,14 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 	std::vector<float> texCoordData;
 	for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		for (int x = 0; x < LEVEL_WIDTH; x++) {		
-			if (levelData[y][x] != 0) {
+			if (levelData[y][x] != -1) {
 				float u = (float)(((int)levelData[y][x]) % SPRITE_COUNT_X) / (float)SPRITE_COUNT_X;
 				float v = (float)(((int)levelData[y][x]) / SPRITE_COUNT_X) / (float)SPRITE_COUNT_Y;
 				float spriteWidth = 1.0f / (float)SPRITE_COUNT_X;
 				float spriteHeight = 1.0f / (float)SPRITE_COUNT_Y;
 
-				u *= spriteWidth* 2;
-				v *= spriteHeight* 2;
+				u *= spriteWidth * 2;
+				//v *= spriteHeight * 2;
 				vertexData.insert(vertexData.begin(), {
 					TILE_SIZE * x, -TILE_SIZE * y,
 					TILE_SIZE * x, (-TILE_SIZE * y) - TILE_SIZE,
@@ -619,7 +648,7 @@ int main(int argc, char *argv[])
 
 	std::string text = "";
 
-	GLuint spritesheet = LoadTexture("platformertiles.png");
+	GLuint spritesheet = LoadTexture("arne_sprites.png");
 
 	GLuint fontTexture = LoadTexture("font1.png");
 
@@ -627,7 +656,7 @@ int main(int argc, char *argv[])
 
 	SheetSprite  spr_player(player_S_Sheet, 0.0f , 0.0f, 0.0f, 0.0f, 0.22, program);
 
-	Entity* player = new Entity(0.0, 0.0, 0.315, 0.315, 2.0, 0.3, 0.7, modelMatrix, viewMatrix,program, spr_player);
+	Entity* player = new Entity(0.0, 0.0, TILE_SIZE, TILE_SIZE, 2.0, 0.3, 0.7, modelMatrix, viewMatrix,program, spr_player);
 
 	//viewMatrix.Translate(-1.2, 1.2, 0.0);
 
@@ -635,19 +664,19 @@ int main(int argc, char *argv[])
 
 	
 	int levelData[LEVEL_HEIGHT][LEVEL_WIDTH] = {
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-		{ 0,0,0,0,0,6,0,6,6,6,6,6,6,6,6,0,0,0,0,0,0,6 },
-		{ 6,0,0,0,0,6,0,0,0,0,6,6,6,6,6,6,6,6,6,6,6,6 },
-		{ 6,6,6,6,6,0,0,0,0,0,6,6,6,6,6,6,6,6,6,6,6,6 },
+		{ 6,6,6,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
+		{ -1,-1,-1,-1,-1,6,-1,6,6,6,6,6,6,6,6,-1,-1,-1,-1,-1,-1,6 },
+		{ 6,-1,6,-1,-1,6,-1,-1,-1,-1,6,6,6,6,6,6,6,6,6,6,6,6 },
+		{ 6,6,6,6,6,-1,-1,-1,-1,-1,6,6,6,6,6,6,6,6,6,6,6,6 },
 		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
-		{ 6,0,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0 },
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-		{ 0,0,6,6,6,6,6,0,0,0,0,0,0,0,0,6,6,6,6,6,0,0 },
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-		{ 0,0,0,0,0,0,0,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0 },
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+		{ 6,-1,-1,-1,-1,-1,-1,6,6,6,6,6,6,6,6,-1,-1,-1,-1,-1,-1,-1 },
+		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
+		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
+		{ -1,-1,6,6,6,6,6,-1,-1,-1,-1,-1,-1,-1,-1,6,6,6,6,6,-1,-1 },
+		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
+		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
+		{ -1,-1,-1,-1,-1,-1,-1,6,6,6,6,6,6,6,6,-1,-1,-1,-1,-1,-1,-1 },
+		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
 	
 	};
 
