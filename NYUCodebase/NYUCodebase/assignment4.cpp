@@ -1,3 +1,4 @@
+
 #ifdef _WINDOWS
 #include <GL/glew.h>
 #endif
@@ -13,6 +14,9 @@
 #include <iostream>
 #include <sstream>
 #include <set>
+#include <cstdlib>
+#include <ctime>
+#include <typeinfo>
 
 #ifdef _WINDOWS
 #define RESOURCE_FOLDER ""
@@ -31,6 +35,12 @@
 
 
 SDL_Window* displayWindow;
+
+float randomGen(float low, int high) {
+	srand((int)time(0));
+	float r = (rand() % high) + low;
+	return r;
+}
 
 GLuint LoadTexture(const char *image_path) {
 	SDL_Surface *surface = IMG_Load(image_path);
@@ -192,7 +202,7 @@ public:
 			//velocity_x += acceleration_x * elapsed;
 			x += -1 * velocity_x * elapsed;
 		}
-		if (keys[SDL_SCANCODE_RIGHT] && !collidedRight/*&& (x + (width / 2.0) <= maxX)*/) {
+		if (keys[SDL_SCANCODE_RIGHT]/*&& (x + (width / 2.0) <= maxX)*/) {
 			/*movingLeft = false;
 			movingRight = true;*/
 			//velocity_x = lerp(velocity_x, 0.0f, elapsed * friction_x);
@@ -352,7 +362,10 @@ void drawText(ShaderProgram *program, int fontTexture, std::string text, float s
 	glDisableVertexAttribArray(program->texCoordAttribute);
 }
 
-std::set<int> solidTiles = { 6 };
+std::set<int> solidTiles = { 6,9,15,20,22 };
+
+
+
 
 struct Vec2 {
 	int x;
@@ -371,6 +384,12 @@ struct Vec2 {
 	}
 };
 
+bool tileSolid(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], Vec2 gCoordinates) {
+	return solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
+}
+
+
+
 Vec2 worldToTileCoordinates(float worldX, float worldY) {
 	Vec2 gridCoordinates;
 	gridCoordinates.x = (int)(worldX / TILE_SIZE);
@@ -382,8 +401,7 @@ Vec2 worldToTileCoordinates(float worldX, float worldY) {
 bool checkCollisionBottom(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 	gCoordinates = worldToTileCoordinates(anEntity->x , anEntity->y - anEntity->height/2.0f);
 
-	const bool tileIsSolid = solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
-	
+	const bool tileIsSolid = tileSolid(levelData, gCoordinates);
 
 	if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
 		//Entity collides with tile from above	
@@ -401,7 +419,7 @@ bool checkCollisionBottom(Entity* anEntity, Vec2& gCoordinates, int levelData[LE
 
 bool checkCollisionTop(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 	gCoordinates = worldToTileCoordinates(anEntity->x, anEntity->y - anEntity->height / 2.0f);
-	const bool tileIsSolid = solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
+	const bool tileIsSolid = tileSolid(levelData, gCoordinates);
 	if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
 		//Entity collides with tile from below
 		if ((anEntity->y + (anEntity->height) / 2) <= ((-TILE_SIZE *gCoordinates.y)- TILE_SIZE)) {
@@ -415,7 +433,7 @@ bool checkCollisionTop(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL
 
 bool checkCollisionLeft(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 	gCoordinates = worldToTileCoordinates(anEntity->x, anEntity->y - anEntity->height / 2.0f);
-	const bool tileIsSolid = solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
+	const bool tileIsSolid = tileSolid(levelData, gCoordinates);
 	if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
 		//Left side of Entity collides with tile
 		if ((anEntity->x + anEntity->width / 2) >= ((TILE_SIZE * gCoordinates.x) - TILE_SIZE)) {
@@ -429,7 +447,7 @@ bool checkCollisionLeft(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVE
 
 bool checkCollisionRight(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 	gCoordinates = worldToTileCoordinates(anEntity->x, anEntity->y - anEntity->height / 2.0f);
-	const bool tileIsSolid = solidTiles.find(levelData[gCoordinates.y][gCoordinates.x]) != solidTiles.end();
+	const bool tileIsSolid = tileSolid(levelData, gCoordinates);
 	if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
 		//Right side of entity collides with tile
 		if ((anEntity->x - anEntity->width / 2) <= ((TILE_SIZE * gCoordinates.x) + TILE_SIZE)) {
@@ -624,6 +642,79 @@ void buildLevel(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 }
 
 
+
+void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
+	Vec2 coordsDown;
+	Vec2 coordsLeft;
+	Vec2 coordsRight;
+	Vec2 coordsUp;
+	Vec2 currentCoords;
+	for (int y = 0; y < LEVEL_HEIGHT; y++) {
+		for (int x = 0; x < LEVEL_WIDTH; x++) {
+			std::vector<int> tiles(solidTiles.size());
+			std::set<int>::iterator it;
+			int idx;
+			for (it = solidTiles.begin(), idx = 0; it != solidTiles.end(); ++it, ++idx) {
+				int settile = *(it);
+				tiles[idx] = settile;
+
+			}
+			std::set<int>::iterator iter = solidTiles.find(tiles[randomGen(0, solidTiles.size())]);
+			coordsUp.x = x;
+			coordsUp.y = y - 2;
+			coordsLeft.x = x - 2;
+			coordsLeft.y = y;
+			coordsRight.x = x + 2;
+			coordsRight.y = y;
+			coordsDown.x = x;
+			coordsDown.y = y + 1;
+			if (!tileSolid(levelData, coordsDown) && !tileSolid(levelData, coordsLeft) && !tileSolid(levelData, coordsRight) && !tileSolid(levelData, coordsUp)) {
+					if ( iter != solidTiles.end())
+					{
+						int setint = *iter;
+						levelData[y][x] = setint;
+						//std::cout << "set int " << setint << std::endl;
+					}
+				else {
+					levelData[y][x] = -1;
+				}
+			}
+			else {
+				levelData[y][x] = -1;
+			}
+		
+	}
+	}
+	//check to see if there are paths through which the player can travel
+	for (int y = 0; y < LEVEL_HEIGHT; y++) {
+		for (int x = 0; x < LEVEL_WIDTH; x++) {
+			currentCoords.x = x+1;
+			currentCoords.y = y-1;
+			coordsUp.x = x;
+			coordsUp.y = y - 2;
+			coordsLeft.x = x - 2;
+			coordsLeft.y = y;
+			coordsRight.x = x + 2;
+			coordsRight.y = y;
+			coordsDown.x = x;
+			coordsDown.y = y + 1;
+			if (!tileSolid(levelData, coordsDown) 
+				&& !tileSolid(levelData, coordsLeft)
+				&& !tileSolid(levelData, coordsRight) 
+				&& !tileSolid(levelData, coordsUp) 
+				&& tileSolid(levelData, currentCoords)) {
+				levelData[currentCoords.y][currentCoords.x] = -1;
+			}
+		}
+	}
+	//Left,right, and top collisions are only detected between these blocks and the player for some reason
+	//If these lines are commented out, the collision detection will cause the player's y position to be increased in the positiv direction
+	//When the collision is detected, the player can then only jump
+	levelData[0][0] = -1;
+	levelData[0][1] = -1;
+	levelData[0][2] = -1;
+}
+
 int main(int argc, char *argv[])
 {
 	float lastFrameTicks = 0.0f;
@@ -656,35 +747,30 @@ int main(int argc, char *argv[])
 
 	SheetSprite  spr_player(player_S_Sheet, 0.0f , 0.0f, 0.0f, 0.0f, 0.22, program);
 
-	Entity* player = new Entity(0.0, 0.0, TILE_SIZE, TILE_SIZE, 2.0, 0.3, 0.7, modelMatrix, viewMatrix,program, spr_player);
+	Entity* player = new Entity(0.0, 0.0, 0.4, 0.4, 2.0, randomGen(0.3,1.0), 0.7, modelMatrix, viewMatrix,program, spr_player);
 
 	//viewMatrix.Translate(-1.2, 1.2, 0.0);
 
 	std::vector<GLuint> textureVect = { spritesheet };
 
+	std::set<int>::iterator it;
+	//for (it = solidTiles.begin(); it != solidTiles.end(); ++it) {
+		//std::cout << 'type' << typeid(*it).name() << std::endl;
+		
+		//*(solidTiles.find(randomGen(0, solidTiles.size())));
+	//}
+
+	int idx;
+	for (it = solidTiles.begin(), idx = 0;  it != solidTiles.end(); ++it,++idx) {
+		
+		std:: cout << " current iteration " << idx << std::endl;
+	}
+	std::cout << "solidtiles size: " << solidTiles.size();
 	
-	int levelData[LEVEL_HEIGHT][LEVEL_WIDTH] = {
-		{ 6,6,6,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
-		{ -1,-1,-1,-1,-1,6,-1,6,6,6,6,6,6,6,6,-1,-1,-1,-1,-1,-1,6 },
-		{ 6,-1,6,-1,-1,6,-1,-1,-1,-1,6,6,6,6,6,6,6,6,6,6,6,6 },
-		{ 6,6,6,6,6,-1,-1,-1,-1,-1,6,6,6,6,6,6,6,6,6,6,6,6 },
-		{ 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6 },
-		{ 6,-1,-1,-1,-1,-1,-1,6,6,6,6,6,6,6,6,-1,-1,-1,-1,-1,-1,-1 },
-		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
-		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
-		{ -1,-1,6,6,6,6,6,-1,-1,-1,-1,-1,-1,-1,-1,6,6,6,6,6,-1,-1 },
-		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
-		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
-		{ -1,-1,-1,-1,-1,-1,-1,6,6,6,6,6,6,6,6,-1,-1,-1,-1,-1,-1,-1 },
-		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
-	
-	};
+	int levelData[LEVEL_HEIGHT][LEVEL_WIDTH] ;
 
-
-
-
-	
-
+	//procedurally generate map
+	pgMap(levelData);
 
 
 	program->setProjectionMatrix(projectionMatrix);
@@ -705,7 +791,7 @@ int main(int argc, char *argv[])
 			}
 			if (keys[SDL_SCANCODE_SPACE] && state == STATE_GAME_LEVEL ) {
 				if (player->collidedBottom) {
-					player->velocity_y = 0.75;
+					player->velocity_y = 1.55;
 					player->y += 1 * player->velocity_y * elapsed;
 					//player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
 					//player->y += player->velocity_y * FIXED_TIMESTEP;
@@ -715,10 +801,6 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-
-		
-
-
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
