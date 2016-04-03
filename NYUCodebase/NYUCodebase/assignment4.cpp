@@ -224,12 +224,6 @@ public:
 		// setup transforms, render sprites
 	}
 
-	bool collidesWith(Entity *entity) {
-
-	}
-
-
-
 	void drawSprite() {
 		program->setModelMatrix(modelM);
 		//program->setProjectionMatrix(projectionMatrix);
@@ -238,7 +232,6 @@ public:
 		modelM.Translate(x, y, 0.0);
 		modelM.Scale(width, height, 0.0);
 		mySprite.Draw();
-
 	}
 
 	void drawUniformSprite(int index, int sprcount_x, int sprcount_y ) {
@@ -250,78 +243,7 @@ public:
 	}
 };
 
-class Room  {
-public:
-	//grid coordinates for each corner of the room
-	int x1, x2, y1, y2;
 
-	//width and height of the room in terms of grid
-	int width, height;
-
-	//center point of the room
-	int center;
-
-	//constructor for creating new rooms
-	Room(int x, int y, int wid, int hght) :width(wid), height(hght) {
-
-	}
-
-};
-
-//class Spaceship : public Entity {
-//public:
-//	Spaceship(float xDirect, float yDirect, float width, float height, float speed,
-//		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite, bool movingLeft, bool movingRight) :
-//		Entity(xDirect, yDirect, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite), movingLeft(movingLeft), movingRight(movingRight) {}
-//
-//	virtual void update(float elapsed) {
-//
-//	}
-//
-//	bool movingLeft;
-//	bool movingRight;
-//};
-
-//class Enemy : public Entity {
-//public:
-//	Enemy(float xDirect, float yDirect,  float width, float height, float speed,
-//		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite);
-//	bool isSolid;
-//	bool floatingLeft;
-//	bool floatingRight;
-//	int leftmost;
-//	int rightmost;
-//	int vectPosX;
-//	int vectPosY;
-//
-//};
-
-//class Bullet : public Entity {
-//
-//public:
-//
-//	Bullet(float xDirect, float yDirect, float width, float height, float speed,
-//		float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite, float angle, float timeAlive)
-//		: Entity(xDirect, yDirect, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite), angle(angle), timeAlive(timeAlive) {
-//	}
-//
-//	float angle;
-//	float timeAlive;
-//
-//};
-//
-//Enemy::Enemy(float xDirect, float yDirect,  float width, float height, float speed,
-//	float xPosition, float yPosition, Matrix &modelMatrix, ShaderProgram* program, SheetSprite newSprite) :
-//	Entity(xDirect, yDirect, width, height, speed, xPosition, yPosition, modelMatrix, program, newSprite) {
-//	leftmost = 0;
-//	rightmost = 10;
-//	vectPosX = 0;
-//	vectPosY = 0;
-//	isSolid = true;
-//	floatingLeft = false;
-//	floatingRight = true;
-//}
-//std::vector<Enemy*> entities;
 
 
 void drawText(ShaderProgram *program, int fontTexture, std::string text, float size, float spacing, Matrix &modelM) {
@@ -362,7 +284,7 @@ void drawText(ShaderProgram *program, int fontTexture, std::string text, float s
 	glDisableVertexAttribArray(program->texCoordAttribute);
 }
 
-std::set<int> solidTiles = { 6,9,15,20,22 };
+std::set<int> solidTiles = { 4,6,15,25,26 };
 
 
 
@@ -651,6 +573,7 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 	Vec2 currentCoords;
 	for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		for (int x = 0; x < LEVEL_WIDTH; x++) {
+			//randomly select a tile from the set of solid tiles
 			std::vector<int> tiles(solidTiles.size());
 			std::set<int>::iterator it;
 			int idx;
@@ -660,6 +583,8 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 
 			}
 			std::set<int>::iterator iter = solidTiles.find(tiles[randomGen(0, solidTiles.size())]);
+
+			//place tiles based on the tiles at adjacent indices in the array
 			coordsUp.x = x;
 			coordsUp.y = y - 2;
 			coordsLeft.x = x - 2;
@@ -708,7 +633,7 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 		}
 	}
 	//Left,right, and top collisions are only detected between these blocks and the player for some reason
-	//If these lines are commented out, the collision detection will cause the player's y position to be increased in the positiv direction
+	//If these lines are commented out, the collision detection will cause the player's y position to be increased in the positive direction
 	//When the collision is detected, the player can then only jump
 	levelData[0][0] = -1;
 	levelData[0][1] = -1;
@@ -749,23 +674,9 @@ int main(int argc, char *argv[])
 
 	Entity* player = new Entity(0.0, 0.0, 0.4, 0.4, 2.0, randomGen(0.3,1.0), 0.7, modelMatrix, viewMatrix,program, spr_player);
 
-	//viewMatrix.Translate(-1.2, 1.2, 0.0);
 
 	std::vector<GLuint> textureVect = { spritesheet };
 
-	std::set<int>::iterator it;
-	//for (it = solidTiles.begin(); it != solidTiles.end(); ++it) {
-		//std::cout << 'type' << typeid(*it).name() << std::endl;
-		
-		//*(solidTiles.find(randomGen(0, solidTiles.size())));
-	//}
-
-	int idx;
-	for (it = solidTiles.begin(), idx = 0;  it != solidTiles.end(); ++it,++idx) {
-		
-		std:: cout << " current iteration " << idx << std::endl;
-	}
-	std::cout << "solidtiles size: " << solidTiles.size();
 	
 	int levelData[LEVEL_HEIGHT][LEVEL_WIDTH] ;
 
@@ -791,7 +702,7 @@ int main(int argc, char *argv[])
 			}
 			if (keys[SDL_SCANCODE_SPACE] && state == STATE_GAME_LEVEL ) {
 				if (player->collidedBottom) {
-					player->velocity_y = 1.55;
+					player->velocity_y = 1.05;
 					player->y += 1 * player->velocity_y * elapsed;
 					//player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
 					//player->y += player->velocity_y * FIXED_TIMESTEP;
