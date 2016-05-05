@@ -235,12 +235,12 @@ public:
 
 		if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
 			//Entity collides with tile from above	
-			if ((-TILE_SIZE *gCoordinates.y) >= (anEntity->y - (anEntity->height) / 2)) {
+			//if ((-TILE_SIZE *gCoordinates.y) >= (anEntity->y - (anEntity->height) / 2)) {
 				anEntity->collidedBottom = true;
 				//std::cout << "collided" << std::endl;
 				return true;
-			}
-			else return false;
+			//}
+			//else return false;
 		}
 		else return false;
 	}
@@ -250,39 +250,39 @@ public:
 		const bool tileIsSolid = tileSolid(levelData, gCoordinates);
 		if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
 			//Entity collides with tile from below
-			if ((anEntity->y + (anEntity->height) / 2) <= ((-TILE_SIZE *gCoordinates.y) - TILE_SIZE)) {
+			//if ((anEntity->y + (anEntity->height) / 2) <= ((-TILE_SIZE *gCoordinates.y) - TILE_SIZE)) {
 				anEntity->collidedTop = true;
 				return true;
-			}
-			else return false;
+			//}
+			//else return false;
 		}
 		else return false;
 	}
 
 	bool checkCollisionLeft(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
-		gCoordinates = worldToTileCoordinates(anEntity->x + anEntity->width / 2, anEntity->y);
+		gCoordinates = worldToTileCoordinates(anEntity->x - anEntity->width / 2, anEntity->y);
 		const bool tileIsSolid = tileSolid(levelData, gCoordinates);
 		if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
 			//Left side of Entity collides with tile
-			if ((anEntity->x + anEntity->width / 2) >= ((TILE_SIZE * gCoordinates.x) - TILE_SIZE)) {
+			//if ((anEntity->x + anEntity->width / 2) >= ((TILE_SIZE * gCoordinates.x) - TILE_SIZE)) {
 				anEntity->collidedLeft = true;
 				return true;
-			}
-			else return false;
+			//}
+			//else return false;
 		}
 		else return false;
 	}
 
 	bool checkCollisionRight(Entity* anEntity, Vec2& gCoordinates, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
-		gCoordinates = worldToTileCoordinates(anEntity->x - anEntity->width / 2, anEntity->y );
+		gCoordinates = worldToTileCoordinates(anEntity->x + anEntity->width / 2, anEntity->y );
 		const bool tileIsSolid = tileSolid(levelData, gCoordinates);
 		if (tileIsSolid && gCoordinates.isPositive() && gCoordinates.withinMap()) {
 			//Right side of entity collides with tile
-			if ((anEntity->x - anEntity->width / 2) <= ((TILE_SIZE * gCoordinates.x) + TILE_SIZE)) {
+			//if ((anEntity->x - anEntity->width / 2) <= ((TILE_SIZE * gCoordinates.x) + TILE_SIZE)) {
 				anEntity->collidedRight = true;
 				return true;
-			}
-			else return false;
+			//}
+			//else return false;
 		}
 		else return false;
 	}
@@ -298,6 +298,16 @@ public:
 		
 		//for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		//for (int x = 0; x < LEVEL_WIDTH; x++) {
+		if (jumping) {  //apply upward movement
+			velocity_y = 1.05;
+			y += 1 * velocity_y * elapsed;
+			//player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
+			//player->y += player->velocity_y * FIXED_TIMESTEP;
+			collidedBottom = false;
+			//player->grounded = false;
+			gravityOn = true;
+			jumping = false;
+		}
 
 		if (checkCollisionBottom(this, tileCoords, levelData)) {
 			//player->gravityOn = false;
@@ -311,19 +321,10 @@ public:
 			//player->grounded = true;
 		}
 
-		if (jumping) {  //apply upward movement
-			velocity_y = 1.05;
-			y += 1 * velocity_y * elapsed;
-			//player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
-			//player->y += player->velocity_y * FIXED_TIMESTEP;
-			collidedBottom = false;
-			//player->grounded = false;
-			gravityOn = true;
-			jumping = false;
-		}
+	
 
 		if (checkCollisionTop(this, tileCoords, levelData)) {
-			y += (y + (height) / 2) - ((-TILE_SIZE *tileCoords.y) - TILE_SIZE);
+			y -= (y + (height) / 2) - ((-TILE_SIZE *tileCoords.y) - TILE_SIZE);
 			//y += fabs((y + (height) / 2) - ((-TILE_SIZE *tileCoords.y) - TILE_SIZE));
 			velocity_y = 0.0;
 			//fabs((-TILE_SIZE *tileCoords.y) - (y - ((height)) / 2.0))
@@ -340,10 +341,7 @@ public:
 			x += -1 * velocity_x * elapsed;
 
 		}
-		if (checkCollisionLeft(this, tileCoords, levelData)) {
-			x += fabs(((TILE_SIZE * tileCoords.x) + TILE_SIZE) - (x - width / 2));
-			//velocity_x = 0.0;
-		}
+	
 
 		if (keys[SDL_SCANCODE_RIGHT]/*&& (x + (width / 2.0) <= maxX)*/) {//apply rightward movement
 			/*movingLeft = false;
@@ -352,8 +350,12 @@ public:
 			//velocity_x += acceleration_x * elapsed;
 			x += 1 * velocity_x * elapsed;
 		}
+		if (checkCollisionLeft(this, tileCoords, levelData)) {
+			x += fabs(((TILE_SIZE * tileCoords.x) + TILE_SIZE) - (x - width / 2));
+			//velocity_x = 0.0;
+		}
 		if (checkCollisionRight(this, tileCoords, levelData)) {
-			x -= (x + width / 2) - ((TILE_SIZE * tileCoords.x) - TILE_SIZE);
+			x -= (x + width / 2) - ((TILE_SIZE * tileCoords.x)) + 0.002;
 			//velocity_x = 0.0;
 		}
 		//scroll screen
@@ -663,9 +665,11 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 
 int main(int argc, char *argv[])
 {
+	
 	float lastFrameTicks = 0.0f;
 
 	SDL_Init(SDL_INIT_VIDEO);
+	
 	displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 690, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
 	SDL_GL_MakeCurrent(displayWindow, context);
@@ -748,7 +752,8 @@ int main(int argc, char *argv[])
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		float minX = -3.5f;
 		float maxX = 3.5f;
