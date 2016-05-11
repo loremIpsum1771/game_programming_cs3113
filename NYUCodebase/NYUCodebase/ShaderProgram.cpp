@@ -27,6 +27,8 @@ ShaderProgram::ShaderProgram(const char *vertexShaderFile, const char *fragmentS
     positionAttribute = glGetAttribLocation(programID, "position");
     texCoordAttribute = glGetAttribLocation(programID, "texCoord");
     
+	colorAttribute = glGetAttribLocation(programID, "color");
+
 }
 
 ShaderProgram::~ShaderProgram() {

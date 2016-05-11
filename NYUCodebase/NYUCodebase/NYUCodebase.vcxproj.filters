@@ -61,10 +61,19 @@
     <Image Include="sheet.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="spritesheet_aliens.png">
+    <Image Include="characters_1.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="characters_1.png">
+    <Image Include="dirt-tiles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Zombie_2_Running.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Zombie_3_Animations.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="spritesheet_aliens.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

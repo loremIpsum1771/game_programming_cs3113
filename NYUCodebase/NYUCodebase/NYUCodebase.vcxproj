@@ -93,11 +93,14 @@
     <Image Include="..\..\..\CS3113\assets\fonts\font1.png" />
     <Image Include="cardBack_blue2.png" />
     <Image Include="characters_1.png" />
+    <Image Include="dirt-tiles.png" />
     <Image Include="paddleBlu.png" />
     <Image Include="paddleRed.png" />
     <Image Include="pongbackground.png" />
     <Image Include="sheet.png" />
     <Image Include="spritesheet_aliens.png" />
+    <Image Include="Zombie_2_Running.png" />
+    <Image Include="Zombie_3_Animations.png" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="hyruletemple.mp3" />

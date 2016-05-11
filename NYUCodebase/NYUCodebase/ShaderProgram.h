@@ -33,4 +33,6 @@ class ShaderProgram {
     
         GLuint vertexShader;
         GLuint fragmentShader;
+
+		GLuint colorAttribute;
 };
