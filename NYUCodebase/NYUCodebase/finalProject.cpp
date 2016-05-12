@@ -763,7 +763,7 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 			//modelM.identity();
 			//eachZombie->viewM.identity();
 			//eachZombie->viewM.Translate(-player->x, -player->y, 0.0);
-			eachZombie->drawUniformSensor(0, 5, 3);
+			//eachZombie->drawUniformSensor(0, 5, 3);
 			eachZombie->drawSprite();
 			
 		}
@@ -862,58 +862,30 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Mat
 	int blockCount = 0;
 	int ranChance = randomGen(0, 100);
 	int randomFloor = 2;
-	int randomPlatLen = randomGen(10, 20);
+	int randomPlatLen = randomGen(5, 10);
 	int zombieProb = randomGen(0, 50);
+	int platSpace = randomGen(1, 3);
+
 	for (int y = 0; y < LEVEL_HEIGHT; y++) {
 		for (int x = 0; x < LEVEL_WIDTH; x++) {
 			levelData[y][x] = -1;
 		}
 	}
-	
-
-	////while (blockCount < LEVEL_WIDTH) {
-	//for (int i = currentSet; i < randomPlatLen; i++) {
-	//	levelData[randomFloor][i] = 4;
-	//	blockCount++;
-	//	//std::cout << "(loop 1) block count: " << blockCount << "random floor: " << randomFloor << "currentSet: " << currentSet<<std::endl;
-	//}
-	//currentSet += randomPlatLen;
-	//std::cout << "/n/n random floor: " << randomFloor << "currentSet (changed): " << currentSet << std::endl;
-	//randomFloor = randomGen(1, 3);
-	//randomPlatLen = randomGen(10, 20);
-
-	//for (int j = currentSet; j < randomPlatLen + currentSet; j++) {
-	//	levelData[randomFloor][j] = 4;
-	//	blockCount++;
-	//	//std::cout << "(loop 2 )block count: " << blockCount << "random floor: " << randomFloor << "currentSet: " << currentSet <<  std::endl;
-	//}
-	//randomFloor = randomGen(1, 3);
-	//randomPlatLen = randomGen(10, 20);
-
-	//for (int i = 0; i < randomPlatLen + currentSet; i++) {
-	//	levelData[randomFloor][i] = 4;
-	//	blockCount++;
-	//	//std::cout << "block count: " << blockCount << "random floor: " << randomFloor << std::endl;
-	//}
-	//randomFloor = randomGen(1, 3);
-	//randomPlatLen = randomGen(10, 20);
-	//for (int i = 0; i < randomPlatLen + currentSet; i++) {
-	//	levelData[randomFloor][i] = 4;
-	//	blockCount++;
-	//	//std::cout << "block count: " << blockCount << "random floor: " << randomFloor << std::endl;
-	//}
-
-	//}
-
+	levelData[2][2] = 4;
+	levelData[LEVEL_HEIGHT][LEVEL_WIDTH] = 4;
 
 	while (blockCount < LEVEL_WIDTH && currentSet < 70) {
 		for (int i = currentSet; i < randomPlatLen + currentSet; i++) {
 			//if (levelData[randomFloor][i] != -1) {
-				levelData[randomFloor][i] = 4;
-				blockCount++;
-				//currentSet++;
-				//std::cout << "block count: " << blockCount << "random floor: " << randomFloor << "currentSet: " << currentSet << std::endl;
+			randomFloor = randomGen(2, 4);
+			levelData[randomFloor][i] = 4;
+			blockCount++;
+			//currentSet++;
+			//std::cout << "block count: " << blockCount << "random floor: " << randomFloor << "currentSet: " << currentSet << std::endl;
 			//}
+		}
+		for (int j = currentSet; j < platSpace + currentSet; j++) {
+			levelData[randomFloor][j] = -1;
 		}
 		//for (int y = 1; y < LEVEL_HEIGHT; y++) {
 		//	for (int x = 0; x < LEVEL_WIDTH; x++) {
@@ -921,34 +893,35 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Mat
 		//	}
 		//}
 
-
+		platSpace = randomGen(1, 2);
 		currentSet += randomPlatLen;
-		if(ranChance > 30 && ranChance < 70)
-			randomFloor = 4;	
-		else if(ranChance < 30)	
-			randomFloor = 5;
+		/*if(ranChance > 30 && ranChance < 70)
+		randomFloor = 4;
+		else if(ranChance < 30)
+		randomFloor = 5;
 		else if (ranChance > 70 && ranChance < 85)
-			randomFloor = 6;
-		else 
-			randomFloor = 7;
-		
-		randomPlatLen = randomGen(10, 20);
-			
+		randomFloor = 6;
+		else
+		randomFloor = 7;
+		*/
+		randomFloor = randomGen(2, 4);
+		randomPlatLen = randomGen(5, 10);
+
 	}
 	Vec2 coordsUp;
 	Vec2 coordsInMap;
 	Vec2 coordsBelow;
 	Vec2 zomCoordPair;
-	for (int y = 1; y < LEVEL_HEIGHT; y++) {
-		for (int x = 0; x < LEVEL_WIDTH; x++) {
+	for (int y = 0; y < LEVEL_HEIGHT; y++) {
+		for (int x = 11; x < LEVEL_WIDTH; x++) {
 			coordsUp.x = x;
-			coordsUp.y = y-1;
-			coordsInMap.x = x ;
+			coordsUp.y = y - 1;
+			coordsInMap.x = x;
 			coordsInMap.y = y;
-			coordsBelow.x = x ;
+			coordsBelow.x = x;
 			coordsBelow.y = y + 1;
-			if (!tileSolid(levelData, coordsUp) && tileSolid(levelData, coordsInMap) /*&& tileSolid(levelData, coordsBelow)*/ && numZombies > 0) {
-				zomCoordPair =  TileToWorldCoordinates(x, y - 1);
+			if (/*!tileSolid(levelData, coordsUp) && tileSolid(levelData, coordsInMap) && */tileSolid(levelData, coordsBelow) && numZombies > 0) {
+				zomCoordPair = TileToWorldCoordinates(x, y - 1);
 				Entity* zombie = new Entity(0.0, 0.0, 0.5, 0.5, 2.0, zomCoordPair.x, zomCoordPair.y, modelM, viewM, program, spr_zombie);
 				zombie->sensorSprite = spr_sensor;
 				zombie->canRender = false;
@@ -961,74 +934,6 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Mat
 		}
 	}
 
-
-	//Vec2 coordsDown;
-	//Vec2 coordsLeft;
-	//Vec2 coordsRight;
-	//Vec2 coordsUp;
-	//Vec2 currentCoords;
-	//for (int y = 0; y < LEVEL_HEIGHT; y++) {
-	//	for (int x = 0; x < LEVEL_WIDTH; x++) {
-	//		//randomly select a tile from the set of solid tiles
-	//		std::vector<int> tiles(solidTiles.size());
-	//		std::set<int>::iterator it;
-	//		int idx;
-	//		for (it = solidTiles.begin(), idx = 0; it != solidTiles.end(); ++it, ++idx) {
-	//			int settile = *(it);
-	//			tiles[idx] = settile;
-
-	//		}
-	//		std::set<int>::iterator iter = solidTiles.find(tiles[randomGen(0, solidTiles.size())]);
-
-	//		//place tiles based on the tiles at adjacent indices in the array
-	//		coordsUp.x = x;
-	//		coordsUp.y = y - 2;
-	//		coordsLeft.x = x - 2;
-	//		coordsLeft.y = y;
-	//		coordsRight.x = x + 2;
-	//		coordsRight.y = y;
-	//		coordsDown.x = x;
-	//		coordsDown.y = y + 1;
-	//		if (!tileSolid(levelData, coordsDown) && !tileSolid(levelData, coordsLeft) && !tileSolid(levelData, coordsRight) && !tileSolid(levelData, coordsUp)) {
-	//			if (iter != solidTiles.end())
-	//			{
-	//				int setint = *iter;
-	//				levelData[y][x] = setint;
-	//				//std::cout << "set int " << setint << std::endl;
-	//			}
-	//			else {
-	//				levelData[y][x] = -1;
-	//			}
-	//		}
-	//		else {
-	//			levelData[y][x] = -1;
-	//		}
-
-	//	}
-	//}
-	////check to see if there are paths through which the player can travel
-	//for (int y = 0; y < LEVEL_HEIGHT; y++) {
-	//	for (int x = 0; x < LEVEL_WIDTH; x++) {
-	//		currentCoords.x = x + 1;
-	//		currentCoords.y = y - 1;
-	//		coordsUp.x = x;
-	//		coordsUp.y = y - 2;
-	//		coordsLeft.x = x - 2;
-	//		coordsLeft.y = y;
-	//		coordsRight.x = x + 2;
-	//		coordsRight.y = y;
-	//		coordsDown.x = x;
-	//		coordsDown.y = y + 1;
-	//		if (!tileSolid(levelData, coordsDown)
-	//			&& !tileSolid(levelData, coordsLeft)
-	//			&& !tileSolid(levelData, coordsRight)
-	//			&& !tileSolid(levelData, coordsUp)
-	//			&& tileSolid(levelData, currentCoords)) {
-	//			levelData[currentCoords.y][currentCoords.x] = -1;
-	//		}
-	//	}
-	//}
-	
 }
 
 int main(int argc, char *argv[])

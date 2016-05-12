@@ -1,13 +1,52 @@
-﻿Build started 5/11/2016 1:24:31 PM.
+﻿Build started 5/12/2016 4:54:21 PM.
      1>Project "C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\NYUCodebase\NYUCodebase.vcxproj" on node 2 (Build target(s)).
-     1>Link:
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\SDL2\include /IC:\SDL2_image\include /IC:\glew\include /IC:\SDL2_mixer\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _WINDOWS /D _MBCS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt finalProject.cpp
+         finalProject.cpp
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(98): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(99): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(134): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(179): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(180): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(187): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(188): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(224): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(235): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(272): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(431): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(432): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(487): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(502): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(544): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(559): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(573): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(606): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(620): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(624): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(863): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(865): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(866): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(867): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(880): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(896): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(907): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(908): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(917): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(918): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(919): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(920): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(921): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(922): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(924): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(961): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>c:\users\ceyron\documents\game_programming_cs3113\nyucodebase\nyucodebase\finalproject.cpp(983): warning C4305: 'argument' : truncation from 'double' to 'float'
+       Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\SDL2_mixer\lib\x86 /LIBPATH:C:\SDL2\lib\x86 /LIBPATH:C:\SDL2_image\lib\x86 /LIBPATH:C:\glew\lib\Release\Win32 SDL2.lib SDL2_mixer.lib glew32.lib SDL2main.lib SDL2_image.lib OpenGL32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.lib" /MACHINE:X86 Debug\finalProject.obj
          Debug\Matrix.obj
          Debug\ShaderProgram.obj
-     1>MSVCRTD.lib(cinitexe.obj) : warning LNK4098: defaultlib 'msvcrt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
          NYUCodebase.vcxproj -> C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\Debug\NYUCodebase.exe
      1>Done Building Project "C:\Users\ceyron\Documents\game_programming_cs3113\NYUCodebase\NYUCodebase\NYUCodebase.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.07
+Time Elapsed 00:00:03.16
