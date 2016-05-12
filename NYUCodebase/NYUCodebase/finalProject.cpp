@@ -27,7 +27,7 @@
 #endif
 
 #define  LEVEL_HEIGHT 8
-#define LEVEL_WIDTH 120
+#define LEVEL_WIDTH 150
 #define TILE_SIZE 0.315f
 #define SPRITE_COUNT_X 24
 #define SPRITE_COUNT_Y 16
@@ -541,7 +541,7 @@ public:
 		//timeAlive += elapsed;
 		//std::cout << "time Alive " << timeAlive << std::endl;
 		if (x <player->x + 0.2 && x > player->x - 0.2) {
-			
+			player->beingFollowed = true;
 			
 			Mix_PlayChannel(-1, biteSound, 0);
 			
@@ -878,8 +878,12 @@ void drawText(ShaderProgram *program, int fontTexture, std::string text, float s
 
 
 
-void resetGame(ShaderProgram* program, Matrix &modelM) {
-
+void resetGame(ShaderProgram* program, Matrix &modelM, Mix_Chunk *biteSound, Mix_Chunk *bulletSound, Mix_Music *music) {
+	Mix_FreeChunk(bulletSound);
+	Mix_FreeChunk(biteSound);
+	Mix_FreeMusic(music);
+	
+	SDL_Quit();
 }
 
 
@@ -913,6 +917,7 @@ void UpdateGameLevel(ShaderProgram* program, float &elapsed, Matrix &modelM, std
 			}
 			else {
 				player->beingFollowed = true;
+				screenShakeValue += elapsed;
 			}
 			//}
 		}
@@ -990,9 +995,9 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 	viewM.identity();
 	viewM.Translate(-player->x, -player->y, 0.0);
 	
-	if (player->beingFollowed)
+	/*if (player->beingFollowed)
 		viewM.Translate(0.0f, sin(screenShakeValue * screenShakeSpeed)* screenShakeIntensity, 0.0f);
-	
+	*/
 
 	std::vector<float> vertexData;
 	std::vector<float> texCoordData;
@@ -1067,7 +1072,7 @@ float timer = 0.0;
 bool start = true;
 
 
-void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string &text, Entity* player, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], Matrix &viewM, Mix_Chunk *biteSound) {
+void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string &text, Entity* player, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], Matrix &viewM, Mix_Chunk *biteSound,  Mix_Chunk *bulletSound, Mix_Music *music) {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 	int numNull = 0;
 	Vec2 currentCoords;
@@ -1084,9 +1089,15 @@ void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string 
 
 	case STATE_GAME_LEVEL:
 		UpdateGameLevel(program, elapsed, modelM, text, player, levelData, viewM, biteSound);
-		
+		if (zombies.size() == 1) {
+			screenShakeValue += elapsed;
+		}
+		if (zombies.size() == 0) {
+			state = STATE_PLAYER_WINS;
+
+		}
 		currentCoords = worldToTileCoordinates(player->x, player->y);
-		if (currentCoords.x >= LEVEL_WIDTH-1) {
+		if (currentCoords.x >= 70) {
 			state = STATE_PLAYER_WINS;
 		}
 		//std::cout << player->entityState << std::endl;
@@ -1108,7 +1119,7 @@ void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string 
 		modelM.identity();
 		if (keys[SDL_SCANCODE_R]) {
 			state = STATE_MAIN_MENU;
-			resetGame(program, modelM);
+			resetGame(program, modelM,biteSound,bulletSound,music);
 		}
 		break;
 	case STATE_PLAYER_LOSES:
@@ -1116,7 +1127,7 @@ void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string 
 		modelM.identity();
 		if (keys[SDL_SCANCODE_R]) {
 			state = STATE_MAIN_MENU;
-			resetGame(program, modelM);
+			resetGame(program, modelM, biteSound, bulletSound, music);
 		}
 		break;
 	}
@@ -1174,13 +1185,13 @@ void Render(ShaderProgram* program, Matrix &modelM, std::string &text, int fontT
 		break;
 
 	case STATE_PLAYER_WINS:
-		text = "You've won!  Press 'R' to retry!";
+		text = "You've won!  Press 'R' to end game!";
 		modelM.Translate(player->x-3.3, player->y, 0.0);
 		//viewM.identity();
 		drawText(program, fontTexture, text, size, spacing, modelM);
 		break;
 	case STATE_PLAYER_LOSES:
-		text = "You've lost! Press 'R' to retry! ";
+		text = "You've lost! Press 'R' to end game! ";
 		//std::string text2 = "to return to main menu!";
 		//modelM.Translate(-2.5, 0.0, 0.0);
 		modelM.Translate(player->x-3.3, player->y, 0.0);
@@ -1218,9 +1229,10 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Sha
 	levelData[LEVEL_HEIGHT][LEVEL_WIDTH] = 4;
 
 	while (blockCount < LEVEL_WIDTH && currentSet < 70) {
+		randomFloor = randomGen(3, 4);
 		for (int i = currentSet; i < randomPlatLen + currentSet; i++) {
 			//if (levelData[randomFloor][i] != -1) {
-				randomFloor = randomGen(2, 4);
+				//randomFloor = randomGen(2, 4);
 				levelData[randomFloor][i] = 4;
 				blockCount++;
 				//currentSet++;
@@ -1229,6 +1241,8 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Sha
 		}
 		for (int j = currentSet; j < platSpace + currentSet; j++) {
 			levelData[randomFloor][j] = -1;
+			int randomDifference = (randomGen(1, 2));
+			levelData[randomFloor- randomDifference][j] = 4;
 		}
 		//for (int y = 1; y < LEVEL_HEIGHT; y++) {
 		//	for (int x = 0; x < LEVEL_WIDTH; x++) {
@@ -1236,7 +1250,7 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Sha
 		//	}
 		//}
 
-		platSpace = randomGen(1, 2);
+		platSpace = 2;
 		currentSet += randomPlatLen;
 		/*if(ranChance > 30 && ranChance < 70)
 			randomFloor = 4;	
@@ -1247,7 +1261,7 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Sha
 		else 
 			randomFloor = 7;
 		*/
-		randomFloor = randomGen(2, 4);
+		randomFloor = randomGen(3, 4);
 		randomPlatLen = randomGen(5, 10);
 			
 	}
@@ -1272,6 +1286,7 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Sha
 				zombies.push_back(zombie);
 				std::cout << "num zombies: " << numZombies << " Zombie coord x: " << coordsUp.x << " Zombie coord y: " << coordsUp.y << std::endl;
 				numZombies -= 1;
+
 			}
 			//std::cout << "level data (after zombies): " << levelData[y][x] << "at x: " << x << " y: " << y << std::endl;
 		}
@@ -1419,7 +1434,7 @@ int main(int argc, char *argv[])
 				Mix_FreeChunk(biteSound);
 				Mix_FreeMusic(music);
 				SDL_Quit();
-				resetGame(program, modelMatrix);
+				resetGame(program, modelMatrix, biteSound, bulletSound, music);
 			}
 
 		}
@@ -1444,7 +1459,7 @@ int main(int argc, char *argv[])
 		}
 		//while (fixedElapsed >= FIXED_TIMESTEP) {
 		//fixedElapsed -= FIXED_TIMESTEP;
-		Update(program, fixedElapsed, modelMatrix, text, player, levelData, viewMatrix,biteSound);
+		Update(program, fixedElapsed, modelMatrix, text, player, levelData, viewMatrix,biteSound,bulletSound,music);
 		Render(program, modelMatrix, text, fontTexture, 0.15f, 0.009f, levelData, textureVect, player, viewMatrix);
 		//}
 
