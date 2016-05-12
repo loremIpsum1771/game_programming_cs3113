@@ -81,5 +81,11 @@
     <Media Include="hyruletemple.mp3">
       <Filter>Resource Files</Filter>
     </Media>
+    <Media Include="zombieAttack.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="bulletSound.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
   </ItemGroup>
 </Project>

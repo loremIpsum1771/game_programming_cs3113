@@ -928,7 +928,7 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Mat
 				zombie->entityType = ENTITY_ZOMBIE;
 				zombies.push_back(zombie);
 				std::cout << "num zombies: " << numZombies << " Zombie coord x: " << coordsUp.x << " Zombie coord y: " << coordsUp.y << std::endl;
-				numZombies -= 1;
+				numZombies -= 1;	
 			}
 			//std::cout << "level data (after zombies): " << levelData[y][x] << "at x: " << x << " y: " << y << std::endl;
 		}

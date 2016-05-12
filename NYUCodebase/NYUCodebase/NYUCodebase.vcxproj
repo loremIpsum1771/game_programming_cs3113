@@ -103,7 +103,9 @@
     <Image Include="Zombie_3_Animations.png" />
   </ItemGroup>
   <ItemGroup>
+    <Media Include="bulletSound.wav" />
     <Media Include="hyruletemple.mp3" />
+    <Media Include="zombieAttack.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
