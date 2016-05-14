@@ -308,18 +308,16 @@ public:
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glDisableVertexAttribArray(program->positionAttribute);
 		glDisableVertexAttribArray(program->colorAttribute);
-
-
-
-
-
 	}	
 	
 };
 
 float screenShakeValue = 0.7;
-float screenShakeSpeed = 1.7;
+float screenShakeSpeed = 3.7;
 float screenShakeIntensity = 1.25;
+
+enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_PLAYER_WINS, STATE_PLAYER_LOSES };
+int state;
 
 enum EntityType { ENTITY_PLAYER, ENTITY_ZOMBIE, ENTITY_COIN, ENTITY_BULLET };
 enum State { PACING, FOLLOWING,DEAD };
@@ -542,10 +540,19 @@ public:
 		//std::cout << "time Alive " << timeAlive << std::endl;
 		if (x <player->x + 0.2 && x > player->x - 0.2) {
 			player->beingFollowed = true;
-			
+			bleeding = true;
 			Mix_PlayChannel(-1, biteSound, 0);
-			
-			//std::cout << "health: " << health << std::endl;
+			health -= 1;
+			screenShakeValue += elapsed;
+			//std::cout << "screen shake value: " << screenShakeValue << std::endl;
+			//std::cout << "(bleeding) health: " << health << std::endl;
+			if (health < 0) {
+				//std::cout << "(bleeding) quit: "  << std::endl;
+				state = STATE_PLAYER_LOSES;
+			}
+		}
+		else {
+			bleeding = false;
 		}
 		
 	}
@@ -892,8 +899,9 @@ void resetGame(ShaderProgram* program, Matrix &modelM, Mix_Chunk *biteSound, Mix
 void UpdateGameLevel(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string &text, Entity* player, int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], Matrix &viewM, Mix_Chunk *biteSound) {
 	player->Update(elapsed,levelData);
 
-	if (player->timeAlive > 4)
-		player->entityState = DEAD;
+	if (player->bleeding) {
+		player->health -= 1;
+	}
 
 	for (int i = 0; i < zombies.size(); i++) {
 
@@ -917,7 +925,7 @@ void UpdateGameLevel(ShaderProgram* program, float &elapsed, Matrix &modelM, std
 			}
 			else {
 				player->beingFollowed = true;
-				screenShakeValue += elapsed;
+				
 			}
 			//}
 		}
@@ -989,15 +997,16 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 	//modelM.Translate(-3.5, 2.0, 0.0);
 
 	
-
+	
+	viewM.Translate(0.0f, sin(screenShakeValue * screenShakeSpeed)* screenShakeIntensity, 0.0f);
 	program->setModelMatrix(modelM);
 	program->setViewMatrix(viewM);
 	viewM.identity();
 	viewM.Translate(-player->x, -player->y, 0.0);
 	
-	/*if (player->beingFollowed)
-		viewM.Translate(0.0f, sin(screenShakeValue * screenShakeSpeed)* screenShakeIntensity, 0.0f);
-	*/
+	//if (player->beingFollowed)
+		
+	
 
 	std::vector<float> vertexData;
 	std::vector<float> texCoordData;
@@ -1064,8 +1073,7 @@ void RenderGameLevel(ShaderProgram* program, Matrix &modelM, std::string &text, 
 
 }
 
-enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_PLAYER_WINS, STATE_PLAYER_LOSES };
-int state;
+
 
 float textScrollRate = -0.0005;
 float timer = 0.0;
@@ -1089,9 +1097,11 @@ void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string 
 
 	case STATE_GAME_LEVEL:
 		UpdateGameLevel(program, elapsed, modelM, text, player, levelData, viewM, biteSound);
-		if (zombies.size() == 1) {
-			screenShakeValue += elapsed;
+		if (player->bleeding) {
+			player->health -= 1;
+			std::cout << "health: " << player->health << std::endl;
 		}
+		
 		if (zombies.size() == 0) {
 			state = STATE_PLAYER_WINS;
 
@@ -1102,7 +1112,7 @@ void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string 
 		}
 		//std::cout << player->entityState << std::endl;
 		
-
+		
 		if (!(player->health >= 0) || player->y <= -5.0) {
 			state = STATE_PLAYER_LOSES;
 		}
@@ -1115,7 +1125,7 @@ void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string 
 		//std::cout << "current coordinates: " << currentCoords.x << std::endl;
 		break;
 	case STATE_PLAYER_WINS:
-		std::cout << "current state: " << state << std::endl;
+		//std::cout << "current state: " << state << std::endl;
 		modelM.identity();
 		if (keys[SDL_SCANCODE_R]) {
 			state = STATE_MAIN_MENU;
@@ -1123,7 +1133,7 @@ void Update(ShaderProgram* program, float &elapsed, Matrix &modelM, std::string 
 		}
 		break;
 	case STATE_PLAYER_LOSES:
-		std::cout << "current state: " << state << std::endl;
+		//std::cout << "current state: " << state << std::endl;
 		modelM.identity();
 		if (keys[SDL_SCANCODE_R]) {
 			state = STATE_MAIN_MENU;
@@ -1241,7 +1251,7 @@ void pgMap(int levelData[LEVEL_HEIGHT][LEVEL_WIDTH], ShaderProgram* program, Sha
 		}
 		for (int j = currentSet; j < platSpace + currentSet; j++) {
 			levelData[randomFloor][j] = -1;
-			int randomDifference = (randomGen(1, 2));
+			int randomDifference = (randomGen(2, 3));
 			levelData[randomFloor- randomDifference][j] = 4;
 		}
 		//for (int y = 1; y < LEVEL_HEIGHT; y++) {
